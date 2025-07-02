@@ -1,0 +1,19 @@
+{
+  "name": "codesnip-ai",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.11",
+    "@vitejs/plugin-react": "^4.0.0",
+    "tailwindcss": "^4.1.11",
+    "vite": "^6.0.0"
+  }
+}
