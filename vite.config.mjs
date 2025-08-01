@@ -8,14 +8,19 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
   root: path.resolve(__dirname, 'src'),
+  plugins: [react(), tailwindcss()],
   build: {
-    outDir: path.resolve(__dirname, 'build'),
     emptyOutDir: true,
+    outDir: path.resolve(__dirname, 'build'),
     manifest: 'manifest.json',
     rollupOptions: {
       input: path.resolve(__dirname, 'src', 'main.jsx'),
+    },
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 })
