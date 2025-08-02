@@ -1,4 +1,4 @@
-import { Switch } from "@/components/ui/Switch";
+import { Switch } from "../../../../components/ui/Switch";
 
 export default function HtmlSnippetList() {
   return (

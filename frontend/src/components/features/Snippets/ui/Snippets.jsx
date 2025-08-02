@@ -1,4 +1,4 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../../components/ui/Tabs";
 import HtmlSnippetList from "../internals/HtmlSnippetList";
 import CssSnippetList from "../internals/CssSnippetList";
 import JavascriptSnippetList from "../internals/JavascriptSnippetList";

@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/Badge";
-import { Switch } from "@/components/ui/Switch";
+import { Badge } from "../../../../components/ui/Badge";
+import { Switch } from "../../../../components/ui/Switch";
 
 export default function AllSnippetList() {
   return (

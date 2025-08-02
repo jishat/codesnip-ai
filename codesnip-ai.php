@@ -5,42 +5,6 @@
  * Version: 1.0
  */
 
-// add_action('admin_menu', function () {
-//   add_menu_page(
-//     'CodeSnip AI', 
-//     'CodeSnip AI',  
-//     'manage_options', 
-//     'codesnip-ai', 
-//     'codesnip_render_app', 
-//     'dashicons-media-code', 26
-//   );
-//     add_submenu_page(
-//       'codesnip-ai',          // Parent slug
-//       'All Snippets',         // Page title
-//       'All Snippets',         // Menu title (this is the submenu name you want)
-//       'manage_options',
-//       'codesnip-ai',          // Must match parent to override default
-//       'codesnip_render_app'   // Same callback
-//     );
-//   add_submenu_page(
-//     'codesnip-ai', 
-//     'Add New', 
-//     'Add New', 
-//     'manage_options', 
-//     'codesnip-ai#/add', 
-//     'codesnip_render_app'
-//   );
-//   add_submenu_page(
-//     'codesnip-ai', 
-//     'Settings', 
-//     'Settings', 
-//     'manage_options', 
-//     'codesnip-ai#/settings', 
-//     'codesnip_render_app'
-//   );
-// });
-
-// Define admin menu using class-style
 class SideBarMenu {
   public function createMenu(): array {
       $icon = '<svg width="36" height="34" viewBox="0 0 36 34" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -117,43 +81,14 @@ class SideBarMenu {
 
 add_action('admin_menu', [new SideBarMenu(), 'addMenu']);
 
-// function codesnip_render_app() {
-//   echo '<div id="codesnip-ai-root"></div>';
-// }
-
 add_action('admin_enqueue_scripts', function ($hook) {
-  if ($hook !== 'toplevel_page_codesnip-ai') return;
+  if (!defined('WP_DEBUG') || !WP_DEBUG) return; // Only in dev mode
 
-  $manifest_path = plugin_dir_path(__FILE__) . 'build/manifest.json';
+  $slug = 'codesnip-ai';
+  wp_enqueue_script($slug . '-vite-client-helper-MODULE', 'http://localhost:5173/wp-content/plugins/codesnip-ai/frontend/src/lib/devHotModule.js', [], null);
+  wp_enqueue_script($slug . '-vite-client-MODULE', 'http://localhost:5173/wp-content/plugins/codesnip-ai/frontend/@vite/client', [], null);
+  wp_enqueue_script($slug . '-index-MODULE', 'http://localhost:5173/wp-content/plugins/codesnip-ai/frontend/src/main.jsx', [], null);
 
-  if (!file_exists($manifest_path)) {
-    echo '<p>Build files not found. Run npm run build.</p>';
-    return;
-  }
-
-  $manifest = json_decode(file_get_contents($manifest_path), true);
-  $entry = $manifest['main.jsx'];
-
-  // Enqueue CSS
-  if (isset($entry['css'])) {
-    foreach ($entry['css'] as $css) {
-      wp_enqueue_style(
-        'codesnip-style',
-        plugin_dir_url(__FILE__) . 'build/' . $css,
-        [],
-        null
-      );
-    }
-  }
-
-  // Enqueue JS
-  wp_enqueue_script(
-    'codesnip-script',
-    plugin_dir_url(__FILE__) . 'build/' . $entry['file'],
-    [],
-    null,
-    true
-  );
 }, 100); 
 
 

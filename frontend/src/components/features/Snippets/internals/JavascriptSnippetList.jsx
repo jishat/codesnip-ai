@@ -1,6 +1,5 @@
-import { Switch } from "@/components/ui/Switch";
 
-export default function CssSnippetList() {
+export default function JavascriptSnippetList() {
   return (
     <div class="overflow-x-auto bg-white rounded-lg shadow">
       <table class="w-full table-auto">
