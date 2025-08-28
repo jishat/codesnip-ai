@@ -30,6 +30,8 @@ export default function AddNew() {
   const [title, setTitle] = useState("");
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [promptValue, setPromptValue] = useState("");
   const [errors, setErrors] = useState({
     snippet: "",
     title: "",
@@ -74,14 +76,15 @@ export default function AddNew() {
     });
 
     const {data} = await res.json();
-    console.log("ai data", data);
+
     if(data.error){
       setErrors(data.error);
     }
 
     if(!data.error && data.data){
       setResult(data.data);
-
+      setDialogOpen(false);
+      setPromptValue("");
     }
     setLoading(false);
   };
@@ -229,7 +232,7 @@ export default function AddNew() {
                   {loading && <Loader2Icon className="animate-spin" />}
                 </Button>
 
-                <Dialog>
+                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
                     <Button className="bg-blue-500 hover:bg-blue-600 cursor-pointer" >
                       <Sparkles />
@@ -243,7 +246,7 @@ export default function AddNew() {
                         Transform your code with AI-powered optimization, Tailwind CSS conversion, and intelligent enhancement 
                       </DialogDescription>
                     </DialogHeader>
-                    <div><PromptInput error={errors?.prompt || ''} loading={loading} onSubmitPrompt={onSubmitPrompt} /></div>
+                    <div><PromptInput error={errors?.prompt || ''} loading={loading} onSubmitPrompt={onSubmitPrompt} promptValue={promptValue} onPromptChange={setPromptValue} /></div>
                   </DialogContent>
                 </Dialog>
               </div>
