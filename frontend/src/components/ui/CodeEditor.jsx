@@ -4,16 +4,17 @@ import CodeMirror from '@uiw/react-codemirror'
 import { html } from '@codemirror/lang-html'
 
 
-const CodeEditor = ({ value, onChange, className="" }) => {
+const CodeEditor = ({ value, onChange, className="", readOnly=false, placeholder="Paste your HTML/CSS code here.." }) => {
   return (
     <div className={`border shadow-sm ${className}`}>
       <CodeMirror
+        readOnly={readOnly}
         value={value}
-        height="450px"
+        height="400px"
         extensions={[html()]}
         onChange={(val) => onChange(val)}
         theme="light"
-        placeholder="Paste your HTML/CSS code here.."
+        placeholder={placeholder}
         basicSetup={{
           lineNumbers: true,
           highlightActiveLine: true,
