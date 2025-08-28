@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import TopBar from "@/components/features/TopBar";
 import CodeEditor from "@/components/ui/CodeEditor";
 import { TypographyH3 } from "@/components/ui/TypographyH3";
@@ -26,6 +27,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import PromptInput from "@/components/features/AiPrompt/ui/PromptInput";
 
 export default function AddNew() {
+  const navigate = useNavigate();
   const [snippet, setSnippet] = useState("");
   const [title, setTitle] = useState("");
   const [result, setResult] = useState("");
@@ -154,7 +156,7 @@ export default function AddNew() {
     }
 
     if(!data.error && data.message){
-      //TODO redirect edit page
+      navigate('/');
     }
     setLoading(false);
   };  
