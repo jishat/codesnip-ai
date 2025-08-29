@@ -1,63 +1,269 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "../../../../components/ui/Badge";
 import { Switch } from "../../../../components/ui/Switch";
+import { Button } from "../../../../components/ui/Button";
+import { Popover, PopoverContent, PopoverTrigger } from "../../../../components/ui/Popover";
+import { Loader2Icon, Edit, Trash2, Copy, Check, AlertTriangle } from "lucide-react";
 
 export default function HtmlSnippetList() {
+  const navigate = useNavigate();
+  const [snippets, setSnippets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [copiedId, setCopiedId] = useState(null);
+  const [openDeletePopover, setOpenDeletePopover] = useState(null);
+
+  useEffect(() => {
+    fetchHtmlSnippets();
+  }, []);
+
+  const fetchHtmlSnippets = async () => {
+    try {
+      setLoading(true);
+      const { ajax_url, nonce } = window.codesnip_ai_;
+
+      const formData = new URLSearchParams();
+      formData.append("action", "codesnip_ai_get_by_type");
+      formData.append("type", "html");
+      formData.append("_ajax_nonce", nonce);
+
+      const res = await fetch(ajax_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
+      });
+
+      const { data } = await res.json();
+      
+      if (data.error) {
+        setError(data.error);
+      } else if (data.snippets) {
+        setSnippets(data.snippets);
+      }
+    } catch (err) {
+      setError("Failed to fetch HTML snippets");
+      console.error("Error fetching HTML snippets:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusToggle = async (snippetId, currentStatus) => {
+    try {
+      const { ajax_url, nonce } = window.codesnip_ai_;
+
+      const formData = new URLSearchParams();
+      formData.append("action", "codesnip_ai_toggle_status");
+      formData.append("snippet_id", snippetId);
+      formData.append("status", currentStatus ? "0" : "1");
+      formData.append("_ajax_nonce", nonce);
+
+      const res = await fetch(ajax_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
+      });
+
+      const { data } = await res.json();
+      
+      if (!data.error) {
+        setSnippets(prev => prev.map(snippet => 
+          snippet.id === snippetId 
+            ? { ...snippet, status: currentStatus ? "0" : "1" }
+            : snippet
+        ));
+      }
+    } catch (err) {
+      console.error("Error toggling status:", err);
+    }
+  };
+
+  const handleDelete = async (snippetId) => {
+    setOpenDeletePopover(null);
+    try {
+      const { ajax_url, nonce } = window.codesnip_ai_;
+
+      const formData = new URLSearchParams();
+      formData.append("action", "codesnip_ai_delete");
+      formData.append("snippet_id", snippetId);
+      formData.append("_ajax_nonce", nonce);
+
+      const res = await fetch(ajax_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
+      });
+
+      const { data } = await res.json();
+      
+      if (!data.error) {
+        setSnippets(prev => prev.filter(snippet => snippet.id !== snippetId));
+      }
+    } catch (err) {
+      console.error("Error deleting snippet:", err);
+    }
+  };
+
+  const handleCopyShortcode = async (snippetId) => {
+    const shortcode = `[codesnip id="${snippetId}"]`;
+    
+    try {
+      await navigator.clipboard.writeText(shortcode);
+      setCopiedId(snippetId);
+    } catch (err) {
+      // Fallback: use deprecated execCommand (still works in most browsers)
+      const textArea = document.createElement("textarea");
+      textArea.value = shortcode;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopiedId(snippetId);
+      } catch (fallbackErr) {
+        console.error('Copy failed:', fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
+    
+    // Reset copied state after 2 seconds
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <Loader2Icon className="animate-spin h-8 w-8 text-blue-500" />
+        <span className="ml-2 text-gray-600">Loading HTML snippets...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500 mb-4">{error}</p>
+        <Button onClick={fetchHtmlSnippets}>Retry</Button>
+      </div>
+    );
+  }
+
+  if (snippets.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500 mb-4">No HTML snippets found</p>
+        <Button className="cursor-pointer" onClick={() => navigate('/add-new')}>Add New HTML Snippet</Button>
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow">
       <table className="w-full table-auto">
         <thead>
-          <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+          <tr className="bg-gray-200 text-gray-600 text-sm leading-normal">
             <th className="py-3 px-6 text-left">ID</th>
+            <th className="py-3 px-6 text-left">Type</th>
             <th className="py-3 px-6 text-left">Name</th>
-            <th className="py-3 px-6 text-left">Source Code</th>
+            <th className="py-3 px-6 text-left">ShortCode</th>
             <th className="py-3 px-6 text-left">Created At</th>
-            <th className="py-3 px-6 text-left">Author</th>
             <th className="py-3 px-6 text-left">Actions</th>
             <th className="py-3 px-6 text-left">Status</th>
           </tr>
         </thead>
         <tbody className="text-gray-600 text-sm">
-          <tr className="border-b border-gray-200 hover:bg-gray-100">
-            <td className="py-3 px-6 text-left">1</td>
-            <td className="py-3 px-6 text-left">Abhiraj k</td>
-            <td className="py-3 px-6 text-left">Abhiraj k</td>
-            <td className="py-3 px-6 text-left">abhi@kerala.com</td>
-            <td className="py-3 px-6 text-left">Admin</td>
-            <td className="py-3 px-6 text-left">
-              <div className="flex item-center">
-                <button className="w-4 mr-2 transform hover:text-blue-500 hover:scale-110">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+          {snippets.map((snippet) => (
+            <tr key={snippet.id} className="border-b border-gray-200 hover:bg-gray-100">
+              <td className="py-3 px-6 text-left">{snippet.id}</td>
+              <td className="py-3 px-6 text-left">
+                <Badge variant="default">HTML</Badge>
+              </td>
+              <td className="py-3 px-6 text-left">{snippet.title}</td>
+              <td className="py-3 px-6 text-left">
+                <div className="flex items-center space-x-2">
+                  <div className="max-w-xs truncate" title={snippet.snippet}>
+                    {`[codesnip id="${snippet.id}"]`}
+                  </div>
+                  <button
+                    className="p-1 hover:bg-gray-100 rounded transition-colors cursor-pointer"
+                    onClick={() => handleCopyShortcode(snippet.id)}
+                    title="Copy shortcode"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                    />
-                  </svg>
-                </button>
-                <button className="w-4 mr-2 transform hover:text-red-500 hover:scale-110">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                    {copiedId === snippet.id ? (
+                      <Check className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-gray-500 hover:text-blue-500" />
+                    )}
+                  </button>
+                </div>
+              </td>
+              <td className="py-3 px-6 text-left">
+                {new Date(snippet.created_at).toLocaleDateString()}
+              </td>
+              <td className="py-3 px-6 text-left">
+                <div className="flex item-center">
+                  <button 
+                    className="w-4 mr-2 transform hover:text-blue-500 hover:scale-110 cursor-pointer"
+                    onClick={() => navigate(`/edit/${snippet.id}`)}
+                    title="Edit"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </td>
-            <td className="py-3 px-6 text-left"><Switch /></td>
-          </tr>
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <Popover open={openDeletePopover === snippet.id} onOpenChange={(open) => setOpenDeletePopover(open ? snippet.id : null)}>
+                    <PopoverTrigger asChild>
+                      <button 
+                        className="w-4 mr-2 transform hover:text-red-500 hover:scale-110 cursor-pointer"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-4">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <AlertTriangle className="h-5 w-5 text-red-500" />
+                        <div>
+                          <h4 className="font-semibold text-gray-900">Delete Snippet</h4>
+                          <p className="text-sm text-gray-600">Are you sure you want to delete this HTML snippet?</p>
+                        </div>
+                      </div>
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setOpenDeletePopover(null)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(snippet.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </td>
+              <td className="py-3 px-6 text-left">
+                <Switch 
+                  checked={snippet.status === "1"}
+                  onCheckedChange={() => handleStatusToggle(snippet.id, snippet.status === "1")}
+                />
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

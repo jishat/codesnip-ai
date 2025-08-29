@@ -147,20 +147,6 @@ function codesnip_ai_assist_callback()
   }
 
   $snippet = wp_kses( $raw_snippet, $allowed_tags );
-    
-
-  // $text = $prompt. "Convert the following HTML and CSS into Tailwind CSS. Use only Tailwind utility classes — no custom CSS, no inline styles, no <html>, <head>, or <body> tags and no 'html' word.
-
-  // Requirements:
-  // - Output only the converted design section with tailwind class (no explanation or markdown)
-  // - Use modern and visually appealing Tailwind styles.
-  // - Keep the full structure and content intact.
-  // - if code has custom css then must use relavant tailwing color class.
-  // - Maintain layout, color, spacing, typography, and responsiveness.
-  
-  // Return only the clean, final Tailwind HTML and ready to embed in a Tailwind-based project.
-  
-  // Input:\n\n" . $snippet;
 
   $content = $raw_prompt. "
         Other Requirements: 
@@ -226,12 +212,16 @@ function codesnip_ai_save_callback(){
   if ($title === '') {
     wp_send_json_error(['error' => ['title' => 'Title must required']], 403);
   }
+  
+  $type = 'html';
+
   global $wpdb;
   $snippetSlug = codesnip_generate_unique_slug($title);
   $wpdb->insert("{$wpdb->prefix}codesnip_snippets", [
     'snippet' => $snippet,
     'title' => $title,
     'slug' => $snippetSlug,
+    'type' => $type,
     'status' => 1,
     'created_at' => current_time('mysql')
   ]);
@@ -243,125 +233,230 @@ function codesnip_ai_save_callback(){
 
 };
 add_action('wp_ajax_codesnip_ai_save', 'codesnip_ai_save_callback');
-// add_action('rest_api_init', function () {
-//   register_rest_route('codesnip/v1', '/ai', [
-//     'methods' => 'POST',
-//     'permission_callback' => '__return_true',
-//     'callback' => function ($request) {
-//       $params = $request->get_json_params();
-//       $type = sanitize_text_field($params['type'] ?? '');
-//       $code = sanitize_textarea_field($params['code'] ?? '');
 
-//       if (!$type || !$code) {
-//         return new WP_REST_Response(['error' => 'Missing parameters'], 400);
-//       }
+// AJAX handler to get all snippets
+function codesnip_ai_get_all_callback() {
+  if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], 'codesnip_ai_nonce')) {
+    wp_send_json_error(['error' => 'Invalid nonce'], 403);
+  }
 
-//       $prompt = match ($type) {
-//         'tailwind_full' => "Convert the following HTML and CSS into Tailwind CSS. Use only Tailwind utility classes — no custom CSS, no inline styles, no <html>, <head>, or <body> tags and no 'html' word.
+  global $wpdb;
+  $table = "{$wpdb->prefix}codesnip_snippets";
+  
+  $snippets = $wpdb->get_results(
+    "SELECT id, title, slug, status, created_at, type 
+     FROM $table 
+     ORDER BY created_at DESC",
+    ARRAY_A
+  );
 
-//         Requirements:
-//         - Output only the converted design section with tailwind class (no explanation or markdown)
-//         - Use modern and visually appealing Tailwind styles.
-//         - Keep the full structure and content intact.
-//         - if code has custom css then must use relavant tailwing color class.
-//         - Maintain layout, color, spacing, typography, and responsiveness.
+  if ($snippets === null) {
+    wp_send_json_error(['error' => 'Database error'], 500);
+  }
 
-//         Return only the clean, final Tailwind HTML and ready to embed in a Tailwind-based project.
+  wp_send_json_success(['snippets' => $snippets]);
+}
+add_action('wp_ajax_codesnip_ai_get_all', 'codesnip_ai_get_all_callback');
 
-//         Input:\n\n" . $code,
-//         default => $code,
-//       };
+function codesnip_ai_get_by_type_callback() {
+  if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], 'codesnip_ai_nonce')) {
+    wp_send_json_error(['error' => 'Invalid nonce'], 403);
+  }
 
-//       $api_key = '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'; // TODO: Replace or load from DB
-//       // $api_key = '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'; // TODO: Replace or load from DB
-//       // $api_key = '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'; // TODO: Replace or load from DB
+  $type = isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : '';
+  
+  if (empty($type)) {
+    wp_send_json_error(['error' => 'Type parameter is required'], 400);
+  }
 
-//       $response = wp_remote_post('https://api.openai.com/v1/chat/completions', [
-//         'headers' => [
-//           'Authorization' => 'Bearer ' . $api_key,
-//           'Content-Type'  => 'application/json'
-//         ],
-//         'body' => json_encode([
-//           // 'model' => 'gpt-4o-mini',
-//           'model' => 'gpt-4-turbo',
-//           'messages' => [['role' => 'user', 'content' => $prompt]],
-//           'max_tokens' => 1500
-//         ]),
-//         'timeout' => 60
-//       ]);
+  global $wpdb;
+  $table = "{$wpdb->prefix}codesnip_snippets";
 
-//       // Debug: log full body
-//       error_log(print_r($response, true)); // ← Add this
+  $types = ['html', 'css', 'js', 'php'];
 
-//       if (is_wp_error($response)) {
-//         return new WP_REST_Response(['error' => $response->get_error_message()], 500);
-//       }
+  if (!in_array($type, $types)) {
+    wp_send_json_error(['error' => 'Type is invalid'], 400);
+  }
+  
+  $snippets = $wpdb->get_results(
+    $wpdb->prepare(
+      "SELECT id, title, snippet, slug, status, created_at, type 
+       FROM $table 
+       WHERE type = %s
+       ORDER BY created_at DESC",
+      $type
+    ),
+    ARRAY_A
+  );
 
-//       $body = json_decode(wp_remote_retrieve_body($response), true);
-//       return ['result' => trim($body['choices'][0]['message']['content'] ?? 'No response')];
-//     }
-//   ]);
+  if ($snippets === null) {
+    wp_send_json_error(['error' => 'Database error'], 500);
+  }
 
-//   // Save Snippet
-//   register_rest_route('codesnip/v1', '/snippets', [
-//     'methods' => 'POST',
-//     'permission_callback' => '__return_true',
-//     'callback' => function ($req) {
-//       global $wpdb;
-//       $params = $req->get_json_params();
-//       $code = sanitize_textarea_field($params['code'] ?? '');
-//       $output = sanitize_textarea_field($params['output'] ?? '');
+  wp_send_json_success(['snippets' => $snippets]);
+}
+add_action('wp_ajax_codesnip_ai_get_by_type', 'codesnip_ai_get_by_type_callback');
 
-//       $wpdb->insert("{$wpdb->prefix}codesnip_snippets", [
-//         'code' => $code,
-//         'output' => $output,
-//         'created_at' => current_time('mysql')
-//       ]);
+// AJAX handler to toggle snippet status
+function codesnip_ai_toggle_status_callback() {
+  if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], 'codesnip_ai_nonce')) {
+    wp_send_json_error(['error' => 'Invalid nonce'], 403);
+  }
 
-//       return [
-//         'id' => $wpdb->insert_id,
-//         'output' => $output
-//       ];
-//     }
-//   ]);
+  $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : 0;
+  $status = isset($_POST['status']) ? intval($_POST['status']) : 0;
+  
+  if ($snippet_id <= 0) {
+    wp_send_json_error(['error' => 'Invalid snippet ID'], 400);
+  }
 
-//   // Get Snippets
-//   register_rest_route('codesnip/v1', '/snippets', [
-//     'methods' => 'GET',
-//     'permission_callback' => '__return_true',
-//     'callback' => function () {
-//       global $wpdb;
-//       return $wpdb->get_results("SELECT id, output FROM {$wpdb->prefix}codesnip_snippets ORDER BY id DESC", ARRAY_A);
-//     }
-//   ]);
+  global $wpdb;
+  $table = "{$wpdb->prefix}codesnip_snippets";
+  
+  $result = $wpdb->update(
+    $table,
+    ['status' => $status],
+    ['id' => $snippet_id],
+    ['%d'],
+    ['%d']
+  );
 
-//   // settings api
-//   register_rest_route('codesnip/v1', '/settings', [
-//     'methods' => 'POST',
-//     'callback' => function ($request) {
-//       $params = $request->get_json_params();
-//       update_option('codesnip_openai_key', sanitize_text_field($params['apiKey']));
-//       update_option('codesnip_model', sanitize_text_field($params['model']));
-//       update_option('codesnip_max_tokens', intval($params['maxTokens']));
-//       return ['success' => true];
-//     },
-//     'permission_callback' => '__return_true',
-//   ]);
+  if ($result === false) {
+    wp_send_json_error(['error' => 'Failed to update status'], 500);
+  }
 
-//   register_rest_route('codesnip/v1', '/settings', [
-//     'methods' => 'GET',
-//     'callback' => function () {
-//       return [
-//         'apiKey'    => get_option('codesnip_openai_key', ''),
-//         'model'     => get_option('codesnip_model', 'gpt-3.5-turbo'),
-//         'maxTokens' => get_option('codesnip_max_tokens', 1000),
-//       ];
-//     },
-//     'permission_callback' => '__return_true',
-//   ]);
-// });
+  wp_send_json_success(['message' => 'Status updated successfully']);
+}
+add_action('wp_ajax_codesnip_ai_toggle_status', 'codesnip_ai_toggle_status_callback');
 
-// Create DB Table
+// AJAX handler to delete snippet
+function codesnip_ai_delete_callback() {
+  if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], 'codesnip_ai_nonce')) {
+    wp_send_json_error(['error' => 'Invalid nonce'], 403);
+  }
+
+  $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : 0;
+  
+  if ($snippet_id <= 0) {
+    wp_send_json_error(['error' => 'Invalid snippet ID'], 400);
+  }
+
+  global $wpdb;
+  $table = "{$wpdb->prefix}codesnip_snippets";
+  
+  $result = $wpdb->delete(
+    $table,
+    ['id' => $snippet_id],
+    ['%d']
+  );
+
+  if ($result === false) {
+    wp_send_json_error(['error' => 'Failed to delete snippet'], 500);
+  }
+
+  wp_send_json_success(['message' => 'Snippet deleted successfully']);
+}
+add_action('wp_ajax_codesnip_ai_delete', 'codesnip_ai_delete_callback');
+
+// AJAX handler to get snippet by ID
+function codesnip_ai_get_by_id_callback() {
+  if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], 'codesnip_ai_nonce')) {
+    wp_send_json_error(['error' => 'Invalid nonce'], 403);
+  }
+
+  $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : 0;
+  
+  if ($snippet_id <= 0) {
+    wp_send_json_error(['error' => 'Invalid snippet ID'], 400);
+  }
+
+  global $wpdb;
+  $table = "{$wpdb->prefix}codesnip_snippets";
+  
+  $snippet = $wpdb->get_row($wpdb->prepare(
+    "SELECT id, title, snippet, slug, status, created_at, type
+     FROM $table
+     WHERE id = %d",
+    $snippet_id
+  ), ARRAY_A);
+
+  if (!$snippet) {
+    wp_send_json_error(['error' => 'Snippet not found'], 404);
+  }
+
+  wp_send_json_success(['snippet' => $snippet]);
+}
+add_action('wp_ajax_codesnip_ai_get_by_id', 'codesnip_ai_get_by_id_callback');
+
+// AJAX handler to update snippet
+function codesnip_ai_update_callback() {
+  if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], 'codesnip_ai_nonce')) {
+    wp_send_json_error(['error' => 'Invalid nonce'], 403);
+  }
+
+  $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : 0;
+  $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
+  // $snippet = isset($_POST['snippet']) ? wp_kses_post(wp_unslash($_POST['snippet'])) : '';
+  $type = isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : '';
+
+  if ($snippet_id <= 0) {
+    wp_send_json_error(['error' => ['snippet_id' => 'Invalid snippet ID']], 400);
+  }
+
+  if (empty($title)) {
+    wp_send_json_error(['error' => ['title' => 'Title is required']], 400);
+  }
+
+  if ($type !== 'html' ) {
+    wp_send_json_error(['error' => ['type' => 'Type is invalid']], 400);
+  }
+
+  $raw_input = isset( $_POST['snippet'] ) ? trim( wp_unslash( $_POST['snippet'] ) ) : '';
+  if (empty($raw_input)) {
+    wp_send_json_error(['error' => ['snippet' => 'Snippet content is required']], 400);
+  }
+
+  $disallowed = [ 'html', 'body', 'script', 'link', 'footer' ];
+  foreach ( $disallowed as $tag ) {
+    if ( preg_match( '/<' . $tag . '\b/i', $raw_input ) ) {
+      wp_send_json_error(['error' => ['snippet' => sprintf( __( 'The <%s> tag is not allowed in snippets.', 'codesnip-ai' ), $tag )]], 403);
+    }
+  }
+  
+  $allowed_tags = wp_kses_allowed_html( 'post' );
+  foreach ( $disallowed as $tag ) {
+    unset( $allowed_tags[ $tag ] );
+  }
+
+  $snippet = wp_kses( $raw_input, $allowed_tags );
+
+
+  global $wpdb;
+  $table = "{$wpdb->prefix}codesnip_snippets";
+  
+  $slug = codesnip_generate_unique_slug($title);
+  
+  $result = $wpdb->update(
+    $table,
+    [
+      'title' => $title,
+      'slug' => $slug,
+      'snippet' => $snippet,
+      'type' => $type,
+    ],
+    ['id' => $snippet_id],
+    ['%s', '%s', '%s', '%s'],
+    ['%d']
+  );
+
+  if ($result === false) {
+    wp_send_json_error(['error' => ['common' => 'Failed to update snippet']], 500);
+  }
+
+  wp_send_json_success(['message' => 'Snippet updated successfully']);
+}
+add_action('wp_ajax_codesnip_ai_update', 'codesnip_ai_update_callback');
+
 register_activation_hook(__FILE__, function () {
   global $wpdb;
   $table = "{$wpdb->prefix}codesnip_snippets";
@@ -372,6 +467,7 @@ register_activation_hook(__FILE__, function () {
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL,
     snippet LONGTEXT NOT NULL,
+    type VARCHAR(20) DEFAULT 'html' NOT NULL,
     status TINYINT(1) DEFAULT 1 NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   ) $charset_collate;";
@@ -384,8 +480,26 @@ register_activation_hook(__FILE__, function () {
 add_shortcode('codesnip', function ($atts) {
   global $wpdb;
   $atts = shortcode_atts(['id' => 0], $atts);
-  $output = $wpdb->get_var($wpdb->prepare("SELECT output FROM {$wpdb->prefix}codesnip_snippets WHERE id = %d", $atts['id']));
-  return $output ? "<pre class='codesnip-output'>{$output}</pre>" : 'Snippet not found.';
+  
+  // Get snippet with status check
+  $snippet_data = $wpdb->get_row($wpdb->prepare(
+    "SELECT snippet, type, status FROM {$wpdb->prefix}codesnip_snippets WHERE id = %d", 
+    $atts['id']
+  ), ARRAY_A);
+  
+  if (!$snippet_data) {
+    return 'Snippet not found.';
+  }
+  
+  // Check if snippet is active and is HTML type
+  if ($snippet_data['status'] != 1 || $snippet_data['type'] !== 'html') {
+    return ''; // Show nothing if not active or not HTML type
+  }
+  
+  $snippet = $snippet_data['snippet'];
+  
+  // Return HTML snippet directly without wrapper
+  return $snippet;
 });
 
 function codesnip_generate_unique_slug($title) {

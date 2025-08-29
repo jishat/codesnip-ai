@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import TopBar from "@/components/features/TopBar";
 import CodeEditor from "@/components/ui/CodeEditor";
 import { TypographyH3 } from "@/components/ui/TypographyH3";
@@ -25,20 +25,65 @@ import ErrorInputMessage from "@/components/ui/ErrorInputMessage";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/Dialog";
 import PromptInput from "@/components/features/AiPrompt/ui/PromptInput";
 
-export default function AddNew() {
+export default function EditSnippet() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [snippet, setSnippet] = useState("");
   const [title, setTitle] = useState("");
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [promptValue, setPromptValue] = useState("");
+  const [snippetType, setSnippetType] = useState("html");
   const [errors, setErrors] = useState({
     snippet: "",
     title: "",
     result: "",
     prompt: "",
   });
+
+  useEffect(() => {
+    if (id) {
+      fetchSnippet();
+    }
+  }, [id]);
+
+  const fetchSnippet = async () => {
+    try {
+      setFetching(true);
+      const { ajax_url, nonce } = window.codesnip_ai_;
+
+      const formData = new URLSearchParams();
+      formData.append("action", "codesnip_ai_get_by_id");
+      formData.append("snippet_id", id);
+      formData.append("_ajax_nonce", nonce);
+
+      const res = await fetch(ajax_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
+      });
+
+      const { data } = await res.json();
+      
+      if (data.error) {
+        setErrors(data.error);
+      } else if (data.snippet) {
+        const snippetData = data.snippet;
+        setTitle(snippetData.title || "");
+        setSnippet(snippetData.snippet || "");
+        setSnippetType(snippetData.type || "html");
+      }
+    } catch (err) {
+      setErrors({common: "Failed to fetch snippet"});
+      console.error("Error fetching snippet:", err);
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const onSubmitPrompt = async (prompt) => {
     if (!prompt.trim()) {
@@ -90,7 +135,7 @@ export default function AddNew() {
     setLoading(false);
   };
 
-  const saveSnippet = async ({actionFrom}) => {
+  const updateSnippet = async ({actionFrom}) => {
     const code = actionFrom === 'ai' ? result : snippet;
     if(actionFrom === 'ai'){
       if (!result.trim())
@@ -124,7 +169,9 @@ export default function AddNew() {
     const formData = new URLSearchParams();
     formData.append('snippet', code);
     formData.append('title', title);
-    formData.append('action', 'codesnip_ai_save');
+    formData.append('type', snippetType);
+    formData.append('snippet_id', id);
+    formData.append('action', 'codesnip_ai_update');
     formData.append('_ajax_nonce', nonce);
 
     const res = await fetch(ajax_url, {
@@ -164,6 +211,18 @@ export default function AddNew() {
     setResult(val);
   }
 
+  if (fetching) {
+    return (
+      <div className="min-h-screen text-gray-800">
+        <TopBar />
+        <div className="flex justify-center items-center py-8">
+          <Loader2Icon className="animate-spin h-8 w-8 text-blue-500" />
+          <span className="ml-2 text-gray-600">Loading snippet...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen text-gray-800">
       <TopBar />
@@ -180,11 +239,11 @@ export default function AddNew() {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Add New</BreadcrumbPage>
+              <BreadcrumbPage>Edit Snippet</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <TypographyH3 className="pb-2 mt-0!">Add New Snippet</TypographyH3>
+        <TypographyH3 className="pb-2 mt-0!">Edit Snippet</TypographyH3>
         <div className="grid w-full items-center gap-3 mb-6">
           <Label htmlFor="title">Title</Label>
           <div>
@@ -201,7 +260,7 @@ export default function AddNew() {
             )}
           </div>
         </div>
-        <RadioGroup defaultValue="html" className="flex mb-3">
+        <RadioGroup value={snippetType} onValueChange={setSnippetType} className="flex mb-3">
           <div className="flex items-center gap-2">
             <RadioGroupItem value="html" id="r1" />
             <Label htmlFor="r1">HTML</Label>
@@ -231,10 +290,10 @@ export default function AddNew() {
               <div className="flex gap-2">
                 <Button
                   className="cursor-pointer"
-                  onClick={() => saveSnippet({actionFrom: 'snippet'})}
+                  onClick={() => updateSnippet({actionFrom: 'snippet'})}
                   disabled={loading}
                 >
-                  Save Snippet
+                  Update Snippet
                   {loading && <Loader2Icon className="animate-spin" />}
                 </Button>
 
@@ -275,10 +334,10 @@ export default function AddNew() {
             <div className="my-4 ml-4">
               <Button
                 className="cursor-pointer"
-                onClick={() => saveSnippet({actionFrom: 'ai'})}
+                onClick={() => updateSnippet({actionFrom: 'ai'})}
                 disabled={loading || !result}
               >
-                Save Result
+                Update Result
                 {loading && <Loader2Icon className="animate-spin" />}
               </Button>
             </div>

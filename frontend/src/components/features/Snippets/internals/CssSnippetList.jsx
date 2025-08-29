@@ -1,4 +1,15 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "../../../../components/ui/Badge";
+import { Switch } from "../../../../components/ui/Switch";
+import { Button } from "../../../../components/ui/Button";
+import { Loader2Icon, Edit, Trash2 } from "lucide-react";
+
 export default function CssSnippetList() {
+  const navigate = useNavigate();
+  const [snippets, setSnippets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   return (
     <div className="overflow-x-auto bg-white rounded-lg shadow">
       <table className="w-full table-auto">

@@ -1,40 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "../components/ui/Button";
-import { Switch } from "../components/ui/Switch";
-import { Label } from "@/components/ui/label";
 
 import TopBar from "@/components/features/TopBar";
 import { TypographyH3 } from "@/components/ui/TypographyH3";
 import Snippets from "@/components/features/Snippets";
+import { useNavigate } from "react-router-dom";
 
 export default function AllSnippets() {
-  const [code, setCode] = useState("");
-  const [result, setResult] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [savedSnippets, setSavedSnippets] = useState([]);
-
-  useEffect(() => {
-    fetch("/wp-json/codesnip/v1/snippets")
-      .then((res) => res.json())
-      .then(setSavedSnippets);
-  }, []);
+  const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen text-gray-800">
+    <div className="min-h-screen text-gray-800 p-6">
       <TopBar />
-      {/* <div className="p-6">
-        <h2 className="text-lg font-semibold mb-4">All Snippets</h2>
-        <div className="bg-white p-4 rounded shadow">
-          {savedSnippets.map((item) => (
-            <div key={item.id} className="bg-white border p-4 mb-3 rounded shadow-sm">
-              <div className="text-sm text-gray-600 mb-2">Shortcode: <code>[codesnip id="{item.id}"]</code></div>
-              <pre className="bg-gray-100 p-3 rounded text-xs whitespace-pre-wrap">{item.output}</pre>
-            </div>
-          ))}
+      <div className="">
+        <div className="flex justify-between items-center border-b pb-2 mb-8">
+          <TypographyH3 className="m-0!">All Snippets</TypographyH3>
+          <Button className="cursor-pointer" onClick={() => navigate('/add-new')}>Add New Snippet</Button>
         </div>
-      </div> */}
-      <div className="p-6">
-        <TypographyH3 className="border-b pb-2 mt-0!">All Snippets</TypographyH3>
         <Snippets />
       </div>
     </div>
