@@ -545,20 +545,26 @@ add_action('wp_ajax_codesnip_ai_get_settings', 'codesnip_ai_get_settings_callbac
 register_activation_hook(__FILE__, function () {
   global $wpdb;
   $table = "{$wpdb->prefix}codesnip_snippets";
-  $charset_collate = $wpdb->get_charset_collate();
+  
+  // Check if table already exists
+  $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table'") == $table;
+  
+  if (!$table_exists) {
+    $charset_collate = $wpdb->get_charset_collate();
 
-  $sql = "CREATE TABLE $table (
-    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) NOT NULL,
-    snippet LONGTEXT NOT NULL,
-    type VARCHAR(20) DEFAULT 'html' NOT NULL,
-    status TINYINT(1) DEFAULT 1 NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  ) $charset_collate;";
+    $sql = "CREATE TABLE $table (
+      id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      slug VARCHAR(255) NOT NULL,
+      snippet LONGTEXT NOT NULL,
+      type VARCHAR(20) DEFAULT 'html' NOT NULL,
+      status TINYINT(1) DEFAULT 1 NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    ) $charset_collate;";
 
-  require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-  dbDelta($sql);
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta($sql);
+  }
 
   // Set default OpenAI settings if they don't exist
   if (!get_option('codesnip_ai_openai_model')) {
@@ -571,9 +577,11 @@ register_activation_hook(__FILE__, function () {
 
 // Deactivation hook to clean up options (optional)
 register_deactivation_hook(__FILE__, function() {
-  delete_option('codesnip_ai_openai_api_key');
-  delete_option('codesnip_ai_openai_model');
-  delete_option('codesnip_ai_openai_max_tokens');
+  // Optionally remove settings when plugin is deactivated
+  // Uncomment the lines below if you want to remove settings on deactivation
+  // delete_option('codesnip_ai_openai_api_key');
+  // delete_option('codesnip_ai_openai_model');
+  // delete_option('codesnip_ai_openai_max_tokens');
 });
 
 // Shortcode: [codesnip id="1"]
