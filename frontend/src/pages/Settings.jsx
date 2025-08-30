@@ -144,14 +144,11 @@ export default function Settings() {
         <div className="flex justify-between items-center border-b pb-2 mb-8">
           <TypographyH3 className="m-0!">Settings</TypographyH3>
         </div>
-        
 
-        {/* OpenAI Configuration Section */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
           <TypographyH4 className="mb-4">OpenAI Configuration</TypographyH4>
           
           <div className="space-y-4">
-            {/* API Key */}
             <div className='max-w-xl'>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 OpenAI API Key
