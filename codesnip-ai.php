@@ -86,6 +86,8 @@ class SideBarMenu
 
 add_action('admin_menu', [new SideBarMenu(), 'addMenu']);
 
+// Note: Settings are managed through the React frontend interface
+// No traditional WordPress admin settings page needed
 
 add_action('admin_enqueue_scripts', function ($hook) {
   if (!defined('WP_DEBUG') || !WP_DEBUG) return; // Only in dev mode
@@ -157,7 +159,11 @@ function codesnip_ai_assist_callback()
         
         Code/snippet:\n\n" . $_POST['snippet'];
 
-  $api_key = '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'; // TODO: Replace or load from DB
+  // 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
+  $api_key = get_option('codesnip_ai_openai_api_key', '');
+  if (empty($api_key)) {
+    wp_send_json_error(['error' => ['prompt' => 'OpenAI API key not configured. Please configure it in Settings.']], 400);
+  }
 
   $response = wp_remote_post('https://api.openai.com/v1/chat/completions', [
     'headers' => [
@@ -165,10 +171,9 @@ function codesnip_ai_assist_callback()
       'Content-Type'  => 'application/json'
     ],
     'body' => json_encode([
-      // 'model' => 'gpt-4o-mini',
-      'model' => 'gpt-4-turbo',
+      'model' => get_option('codesnip_ai_openai_model', 'gpt-4.1-nano'),
       'messages' => [['role' => 'user', 'content' => $content]],
-      'max_tokens' => 1500
+      'max_tokens' => intval(get_option('codesnip_ai_openai_max_tokens', 1500))
     ]),
     'timeout' => 60
   ]);
@@ -457,6 +462,83 @@ function codesnip_ai_update_callback() {
 }
 add_action('wp_ajax_codesnip_ai_update', 'codesnip_ai_update_callback');
 
+// AJAX handler to save OpenAI settings
+function codesnip_ai_save_settings_callback() {
+  if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], 'codesnip_ai_nonce')) {
+    wp_send_json_error(['error' => 'Invalid nonce'], 403);
+  }
+
+  // Check if user has permission to manage options
+  if (!current_user_can('manage_options')) {
+    wp_send_json_error(['error' => 'Insufficient permissions'], 403);
+  }
+
+  $api_key = isset($_POST['api_key']) ? sanitize_text_field(wp_unslash($_POST['api_key'])) : '';
+  $model = isset($_POST['model']) ? sanitize_text_field(wp_unslash($_POST['model'])) : '';
+  $max_tokens = isset($_POST['max_tokens']) ? intval($_POST['max_tokens']) : 1500;
+
+  // Validate API key (basic validation)
+  if (empty($api_key)) {
+    wp_send_json_error(['error' => 'API key is required'], 400);
+  }
+
+  if (!preg_match('/^[a-zA-Z0-9_-]{32,200}$/', $api_key)) {
+    wp_send_json_error(['error' => 'Invalid API key format'], 400);
+  }
+
+  // Validate model
+  $allowed_models = [
+    'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano',
+    'gpt-4o', 'gpt-4o-mini',
+    'o1', 'o1-mini', 'o3', 'o3-mini',
+    'gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo'
+  ];
+  if (!in_array($model, $allowed_models)) {
+    wp_send_json_error(['error' => 'Invalid model selection'], 400);
+  }
+
+  // Validate max tokens
+  if ($max_tokens < 1 || $max_tokens > 4000) {
+    wp_send_json_error(['error' => 'Max tokens must be between 1 and 4000'], 400);
+  }
+
+  // Save settings using WordPress options API
+  update_option('codesnip_ai_openai_api_key', $api_key);
+  update_option('codesnip_ai_openai_model', $model);
+  update_option('codesnip_ai_openai_max_tokens', $max_tokens);
+
+  wp_send_json_success([
+    'message' => 'Settings saved successfully!',
+    'data' => [
+      'api_key' => $api_key,
+      'model' => $model,
+      'max_tokens' => $max_tokens
+    ]
+  ]);
+}
+add_action('wp_ajax_codesnip_ai_save_settings', 'codesnip_ai_save_settings_callback');
+
+// AJAX handler to get OpenAI settings
+function codesnip_ai_get_settings_callback() {
+  if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], 'codesnip_ai_nonce')) {
+    wp_send_json_error(['error' => 'Invalid nonce'], 403);
+  }
+
+  // Check if user has permission to manage options
+  if (!current_user_can('manage_options')) {
+    wp_send_json_error(['error' => 'Insufficient permissions'], 403);
+  }
+
+  $settings = [
+    'api_key' => get_option('codesnip_ai_openai_api_key', ''),
+    'model' => get_option('codesnip_ai_openai_model', 'gpt-4.1-nano'),
+    'max_tokens' => intval(get_option('codesnip_ai_openai_max_tokens', 1500))
+  ];
+
+  wp_send_json_success(['settings' => $settings]);
+}
+add_action('wp_ajax_codesnip_ai_get_settings', 'codesnip_ai_get_settings_callback');
+
 register_activation_hook(__FILE__, function () {
   global $wpdb;
   $table = "{$wpdb->prefix}codesnip_snippets";
@@ -474,6 +556,21 @@ register_activation_hook(__FILE__, function () {
 
   require_once ABSPATH . 'wp-admin/includes/upgrade.php';
   dbDelta($sql);
+
+  // Set default OpenAI settings if they don't exist
+  if (!get_option('codesnip_ai_openai_model')) {
+    add_option('codesnip_ai_openai_model', 'gpt-4.1-nano');
+  }
+  if (!get_option('codesnip_ai_openai_max_tokens')) {
+    add_option('codesnip_ai_openai_max_tokens', 1500);
+  }
+});
+
+// Deactivation hook to clean up options (optional)
+register_deactivation_hook(__FILE__, function() {
+  delete_option('codesnip_ai_openai_api_key');
+  delete_option('codesnip_ai_openai_model');
+  delete_option('codesnip_ai_openai_max_tokens');
 });
 
 // Shortcode: [codesnip id="1"]
