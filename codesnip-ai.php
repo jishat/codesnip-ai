@@ -280,7 +280,7 @@ function codesnip_ai_get_by_type_callback() {
   global $wpdb;
   $table = "{$wpdb->prefix}codesnip_snippets";
 
-  $types = ['html', 'css', 'js', 'php'];
+  $types = ['html', 'css', 'js'];
 
   if (!in_array($type, $types)) {
     wp_send_json_error(['error' => 'Type is invalid'], 400);
