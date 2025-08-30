@@ -146,7 +146,7 @@ export default function Settings() {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-          <TypographyH4 className="mb-4">OpenAI Configuration</TypographyH4>
+          <TypographyH4 className="mb-4 mt-0!">OpenAI Configuration</TypographyH4>
           
           <div className="space-y-4">
             <div className='max-w-xl'>
