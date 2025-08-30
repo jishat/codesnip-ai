@@ -165,9 +165,9 @@ export default function AddNew() {
   }
 
   return (
-    <div className="min-h-screen text-gray-800">
+    <div className="min-h-screen text-gray-800 p-6">
       <TopBar />
-      <div className="p-6">
+      <div>
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>

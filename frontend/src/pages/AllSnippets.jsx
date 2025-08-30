@@ -12,7 +12,7 @@ export default function AllSnippets() {
   return (
     <div className="min-h-screen text-gray-800 p-6">
       <TopBar />
-      <div className="">
+      <div>
         <div className="flex justify-between items-center border-b pb-2 mb-8">
           <TypographyH3 className="m-0!">All Snippets</TypographyH3>
           <Button className="cursor-pointer" onClick={() => navigate('/add-new')}>Add New Snippet</Button>
