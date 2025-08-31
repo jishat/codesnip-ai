@@ -19,11 +19,12 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/Breadcrumb";
 import { Button } from "@/components/ui/Button";
-import { Loader2Icon, Sparkles } from "lucide-react";
+import { AlertCircleIcon, Loader2Icon, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import ErrorInputMessage from "@/components/ui/ErrorInputMessage";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/Dialog";
 import PromptInput from "@/components/features/AiPrompt/ui/PromptInput";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function EditSnippet() {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ export default function EditSnippet() {
     title: "",
     result: "",
     prompt: "",
+    notFound: "",
   });
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export default function EditSnippet() {
       const { data } = await res.json();
       
       if (data.error) {
-        setErrors(data.error);
+        setErrors({notFound: data.error});
       } else if (data.snippet) {
         const snippetData = data.snippet;
         setTitle(snippetData.title || "");
@@ -162,7 +164,7 @@ export default function EditSnippet() {
 
     if (!code.trim() || !title.trim()) return;
 
-    setErrors({title: '', snippet: '', common: '', result: ''})
+    setErrors({title: '', snippet: '', prompt: '', result: ''})
     setLoading(true);
     const { ajax_url, nonce } = window.codesnip_ai_;
 
@@ -220,6 +222,20 @@ export default function EditSnippet() {
           <span className="ml-2 text-gray-600">Loading snippet...</span>
         </div>
       </div>
+    );
+  }
+
+  if(errors?.notFound){
+    return (
+      <div className="min-h-screen text-gray-800 p-6">
+      <TopBar />
+      <div className="flex justify-center items-center py-8">
+        <Alert variant="destructive" className="w-md">
+          <AlertCircleIcon />
+          <AlertTitle>{errors?.notFound}</AlertTitle>
+        </Alert>
+      </div>
+    </div>
     );
   }
 
