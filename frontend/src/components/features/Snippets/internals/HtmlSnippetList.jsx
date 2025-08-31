@@ -74,7 +74,7 @@ export default function HtmlSnippetList() {
       if (!data.error) {
         setSnippets(prev => prev.map(snippet => 
           snippet.id === snippetId 
-            ? { ...snippet, status: currentStatus ? "0" : "1" }
+            ? { ...snippet, status: currentStatus ? 0 : 1 }
             : snippet
         ));
       }
@@ -257,9 +257,10 @@ export default function HtmlSnippetList() {
                 </div>
               </td>
               <td className="py-3 px-6 text-left">
-                <Switch 
-                  checked={snippet.status === "1"}
-                  onCheckedChange={() => handleStatusToggle(snippet.id, snippet.status === "1")}
+                <Switch
+                  className="cursor-pointer"
+                  checked={snippet.status === 1}
+                  onCheckedChange={() => handleStatusToggle(snippet.id, snippet.status === 1)}
                 />
               </td>
             </tr>
