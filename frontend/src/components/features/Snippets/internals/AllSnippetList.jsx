@@ -74,7 +74,7 @@ export default function AllSnippetList() {
         // Update the snippet status in local state
         setSnippets(prev => prev.map(snippet => 
           snippet.id === snippetId 
-            ? { ...snippet, status: currentStatus ? "0" : "1" }
+            ? { ...snippet, status: currentStatus ? 0 : 1 }
             : snippet
         ));
       }
@@ -187,7 +187,7 @@ export default function AllSnippetList() {
             <tr key={snippet.id} className="border-b border-gray-200 hover:bg-gray-100">
               <td className="py-3 px-6 text-left">{snippet.id}</td>
               <td className="py-3 px-6 text-left">
-                <Badge variant="default">{snippet.type || 'HTML'}</Badge>
+                <Badge variant="default" className="uppercase">{snippet?.type || ''}</Badge>
               </td>
               <td className="py-3 px-6 text-left">{snippet.title}</td>
               <td className="py-3 px-6 text-left">
@@ -259,8 +259,8 @@ export default function AllSnippetList() {
               </td>
               <td className="py-3 px-6 text-left">
                 <Switch 
-                  checked={snippet.status === "1"}
-                  onCheckedChange={() => handleStatusToggle(snippet.id, snippet.status === "1")}
+                  checked={snippet.status === 1}
+                  onCheckedChange={() => handleStatusToggle(snippet.id, snippet.status === 1)}
                 />
               </td>
             </tr>
