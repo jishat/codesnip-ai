@@ -259,6 +259,7 @@ export default function AllSnippetList() {
               </td>
               <td className="py-3 px-6 text-left">
                 <Switch 
+                  className="cursor-pointer"
                   checked={snippet.status === 1}
                   onCheckedChange={() => handleStatusToggle(snippet.id, snippet.status === 1)}
                 />
