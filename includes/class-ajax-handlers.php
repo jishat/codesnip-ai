@@ -46,7 +46,7 @@ class CodeSnip_AI_Ajax_Handlers {
      */
     public function assist_callback() {
         if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], 'codesnip_ai_nonce')) {
-            wp_send_json_error(array('error' => array('prompt' => 'Invalid nonce')), 403);
+            wp_send_json_error(array('error' => array('prompt' => __( 'Invalid nonce', 'codesnip-ai' ))), 403);
         }
 
         $raw_prompt  = isset($_POST['prompt']) ? trim(wp_unslash($_POST['prompt'])) : '';
@@ -111,9 +111,20 @@ class CodeSnip_AI_Ajax_Handlers {
         
         $body = json_decode(wp_remote_retrieve_body($response), true);
 
+        if ( empty( $body['choices'][0]['message']['content'] ) ) {
+            wp_send_json_error(array('error' => array('prompt' => __( 'Invalid response from AI API.', 'codesnip-ai' ))), 500);
+        }
+
+        $ai_response = $body['choices'][0]['message']['content'];
+
+        $allowed_tags = wp_kses_allowed_html( 'post' );
+        unset( $allowed_tags['html'], $allowed_tags['script'], $allowed_tags['link'], $allowed_tags['footer'], $allowed_tags['body'] );
+        
+        $escaped_response = wp_kses( $ai_response, $allowed_tags );
+
         wp_send_json_success(array(
-            'message' => 'Successfully!',
-            'data'    => $body['choices'][0]['message']['content']
+            'message' =>  __( 'Successfully!', 'codesnip-ai' ),
+            'data'    => $escaped_response
         ));
     }
 
@@ -127,7 +138,10 @@ class CodeSnip_AI_Ajax_Handlers {
 
         $raw_input = isset($_POST['snippet']) ? trim(wp_unslash($_POST['snippet'])) : '';
         $disallowed = array('html', 'body', 'script', 'link', 'footer');
-        
+        if (!isset($raw_input) || empty($raw_input)) {
+            wp_send_json_error(array('error' => array('snippet' => 'Code must required')), 403);
+        }
+
         foreach ($disallowed as $tag) {
             if (preg_match('/<' . $tag . '\b/i', $raw_input)) {
                 wp_send_json_error(array('error' => array('snippet' => sprintf(__('The <%s> tag is not allowed in snippets.', 'codesnip-ai'), $tag))), 403);
@@ -164,7 +178,7 @@ class CodeSnip_AI_Ajax_Handlers {
 
         wp_send_json_success(array(
             'message' => 'Snippet saved successfully!',
-            'data'    => array('id' => $wpdb->insert_id)
+            'data'    => array('id' => intval($wpdb->insert_id))
         ));
     }
 
@@ -187,10 +201,23 @@ class CodeSnip_AI_Ajax_Handlers {
         );
 
         if ($snippets === null) {
-            wp_send_json_error(array('error' => 'Database error'), 500);
+            wp_send_json_error(array('error' => 'Snippets not found'), 500);
         }
 
-        wp_send_json_success(array('snippets' => $snippets));
+        // Escape all output data for security
+        $escaped_snippets = array();
+        foreach ($snippets as $snippet) {
+            $escaped_snippets[] = array(
+                'id' => intval($snippet['id']),
+                'title' => esc_html($snippet['title']),
+                'slug' => esc_html($snippet['slug']),
+                'status' => intval($snippet['status']),
+                'created_at' => esc_html($snippet['created_at']),
+                'type' => esc_html($snippet['type'])
+            );
+        }
+
+        wp_send_json_success(array('snippets' => $escaped_snippets));
     }
 
     /**
@@ -210,9 +237,7 @@ class CodeSnip_AI_Ajax_Handlers {
         global $wpdb;
         $table = "{$wpdb->prefix}codesnip_snippets";
 
-        $types = array('html', 'css', 'js', 'php');
-
-        if (!in_array($type, $types)) {
+        if ($type !== 'html') {
             wp_send_json_error(array('error' => 'Type is invalid'), 400);
         }
         
@@ -231,7 +256,20 @@ class CodeSnip_AI_Ajax_Handlers {
             wp_send_json_error(array('error' => 'Database error'), 500);
         }
 
-        wp_send_json_success(array('snippets' => $snippets));
+        // Escape all output data for security
+        $escaped_snippets = array();
+        foreach ($snippets as $snippet) {
+            $escaped_snippets[] = array(
+                'id' => intval($snippet['id']),
+                'title' => esc_html($snippet['title']),
+                'slug' => esc_html($snippet['slug']),
+                'status' => intval($snippet['status']),
+                'created_at' => esc_html($snippet['created_at']),
+                'type' => esc_html($snippet['type'])
+            );
+        }
+
+        wp_send_json_success(array('snippets' => $escaped_snippets));
     }
 
     /**
@@ -242,9 +280,14 @@ class CodeSnip_AI_Ajax_Handlers {
             wp_send_json_error(array('error' => 'Invalid nonce'), 403);
         }
 
-        $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : 0;
-        $status = isset($_POST['status']) ? intval($_POST['status']) : 0;
-        
+        $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : '';
+        $status = isset($_POST['status']) ? intval($_POST['status']) : '';
+        if($status !== 0 && $status !== 1) {
+            wp_send_json_error(array('error' => 'Invalid status'), 400);
+        }
+        if($snippet_id === '' || $status === '') {
+            wp_send_json_error(array('error' => 'Invalid snippet ID or status'), 400);
+        }
         if ($snippet_id <= 0) {
             wp_send_json_error(array('error' => 'Invalid snippet ID'), 400);
         }
@@ -275,8 +318,12 @@ class CodeSnip_AI_Ajax_Handlers {
             wp_send_json_error(array('error' => 'Invalid nonce'), 403);
         }
 
-        $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : 0;
-        
+        $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : '';
+
+        if($snippet_id === '') {
+            wp_send_json_error(array('error' => 'Invalid snippet ID'), 400);
+        }
+
         if ($snippet_id <= 0) {
             wp_send_json_error(array('error' => 'Invalid snippet ID'), 400);
         }
@@ -305,8 +352,12 @@ class CodeSnip_AI_Ajax_Handlers {
             wp_send_json_error(array('error' => 'Invalid nonce'), 403);
         }
 
-        $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : 0;
-        
+        $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : '';
+
+        if($snippet_id === '') {
+            wp_send_json_error(array('error' => 'Invalid snippet ID'), 400);
+        }
+
         if ($snippet_id <= 0) {
             wp_send_json_error(array('error' => 'Invalid snippet ID'), 400);
         }
@@ -325,7 +376,18 @@ class CodeSnip_AI_Ajax_Handlers {
             wp_send_json_error(array('error' => 'Snippet not found'), 404);
         }
 
-        wp_send_json_success(array('snippet' => $snippet));
+        // Escape all output data for security
+        $escaped_snippet = array(
+            'id' => intval($snippet['id']),
+            'title' => esc_html($snippet['title']),
+            'snippet' => wp_kses_post($snippet['snippet']), // Allow safe HTML for snippet content
+            'slug' => esc_html($snippet['slug']),
+            'status' => intval($snippet['status']),
+            'created_at' => esc_html($snippet['created_at']),
+            'type' => esc_html($snippet['type'])
+        );
+
+        wp_send_json_success(array('snippet' => $escaped_snippet));
     }
 
     /**
@@ -336,12 +398,16 @@ class CodeSnip_AI_Ajax_Handlers {
             wp_send_json_error(array('error' => array('common' => 'Invalid nonce')), 403);
         }
 
-        $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : 0;
+        $snippet_id = isset($_POST['snippet_id']) ? intval($_POST['snippet_id']) : '';
         $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
         $type = isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : '';
 
+        if($snippet_id === '') {
+            wp_send_json_error(array('error' => array('common' => 'Invalid snippet ID')), 403);
+        }
+
         if ($snippet_id <= 0) {
-            wp_send_json_error(array('error' => array('snippet_id' => 'Invalid snippet ID')), 400);
+            wp_send_json_error(array('error' => array('common' => 'Invalid snippet ID')), 400);
         }
 
         if (empty($title)) {
@@ -349,7 +415,7 @@ class CodeSnip_AI_Ajax_Handlers {
         }
 
         if ($type !== 'html') {
-            wp_send_json_error(array('error' => array('type' => 'Type is invalid')), 400);
+            wp_send_json_error(array('error' => array('common' => 'Type is invalid')), 400);
         }
 
         $raw_input = isset($_POST['snippet']) ? trim(wp_unslash($_POST['snippet'])) : '';
@@ -417,9 +483,13 @@ class CodeSnip_AI_Ajax_Handlers {
         if (empty($api_key)) {
             wp_send_json_error(array('error' => 'API key is required'), 400);
         }
-
+        
         if (!preg_match('/^[a-zA-Z0-9_-]{32,200}$/', $api_key)) {
             wp_send_json_error(array('error' => 'Invalid API key format'), 400);
+        }
+
+        if (empty($model)) {
+            wp_send_json_error(array('error' => 'Model is required'), 400);
         }
 
         // Validate model
