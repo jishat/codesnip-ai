@@ -117,7 +117,7 @@ export default function AddNew() {
 
     if (!code.trim() || !title.trim()) return;
 
-    setErrors({title: '', snippet: '', common: '', result: ''})
+    setErrors({title: '', snippet: '', prompt: '', result: ''})
     setLoading(true);
     const { ajax_url, nonce } = window.codesnip_ai_;
 
