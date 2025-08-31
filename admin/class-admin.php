@@ -43,7 +43,7 @@ class CodeSnip_AI_Admin {
             return; // Only in dev mode
         }
 
-        $slug = 'codesnip-ai';
+        $slug = CodeSnip_AI_Config::get_plugin_slug();
         $var_prefix = 'codesnip_ai_';
         
         wp_enqueue_script(
@@ -69,7 +69,7 @@ class CodeSnip_AI_Admin {
 
         wp_localize_script($slug . '-index-MODULE', $var_prefix, array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce'    => wp_create_nonce('codesnip_ai_nonce'),
+            'nonce'    => wp_create_nonce(CodeSnip_AI_Config::get_nonce_action()),
         ));
     }
 
@@ -82,7 +82,7 @@ class CodeSnip_AI_Admin {
      * @return string Modified script tag
      */
     public function script_loader_tag($html, $handle, $href) {
-        $slug = 'codesnip-ai';
+        $slug = CodeSnip_AI_Config::get_plugin_slug();
         $new_tag = $html;
         
         if (strpos($handle, 'MODULE') !== false && strpos($handle, $slug) !== false) {

@@ -85,6 +85,7 @@ final class CodeSnip_AI_Plugin {
      */
     private function includes() {
         // Include required files
+        require_once CODESNIP_AI_PLUGIN_DIR . 'includes/class-config.php';
         require_once CODESNIP_AI_PLUGIN_DIR . 'includes/class-sidebar-menu.php';
         require_once CODESNIP_AI_PLUGIN_DIR . 'includes/class-ajax-handlers.php';
         require_once CODESNIP_AI_PLUGIN_DIR . 'includes/class-database.php';

@@ -34,13 +34,13 @@ class CodeSnip_AI_SideBar_Menu {
                 c1.48-3.73,0.91-7.66,0.95-11.51c0.07-8.98,0.02-17.96,0.02-26.94C122.45,46.73,122.39,46.73,122.33,46.73z" fill="#808285"/>
         </svg>';
 
-        $slug = 'codesnip-ai';
+        $slug = CodeSnip_AI_Config::get_plugin_slug();
 
         return array(
             'Home' => array(
                 'type'       => 'menu',
-                'title'      => __('CodeSnip AI - Admin Panel', 'codesnip-ai'),
-                'name'       => __('CodeSnip AI', 'codesnip-ai'),
+                'title'      => __('CodeSnip AI - Admin Panel', CodeSnip_AI_Config::get_text_domain()),
+                'name'       => __('CodeSnip AI', CodeSnip_AI_Config::get_text_domain()),
                 'capability' => 'edit_posts',
                 'slug'       => $slug,
                 'callback'   => array($this, 'render_app'),
@@ -50,21 +50,21 @@ class CodeSnip_AI_SideBar_Menu {
             'All Snippets' => array(
                 'type'       => 'submenu',
                 'parent'     => $slug,
-                'name'       => __('All Snippets', 'codesnip-ai'),
+                'name'       => __('All Snippets', CodeSnip_AI_Config::get_text_domain()),
                 'capability' => 'edit_posts',
                 'slug'       => $slug . '#/',
             ),
             'Add New' => array(
                 'type'       => 'submenu',
                 'parent'     => $slug,
-                'name'       => __('Add New', 'codesnip-ai'),
+                'name'       => __('Add New', CodeSnip_AI_Config::get_text_domain()),
                 'capability' => 'edit_posts',
                 'slug'       => $slug . '#/add-new',
             ),
             'Settings' => array(
                 'type'       => 'submenu',
                 'parent'     => $slug,
-                'name'       => __('Settings', 'codesnip-ai'),
+                'name'       => __('Settings', CodeSnip_AI_Config::get_text_domain()),
                 'capability' => 'manage_options',
                 'slug'       => $slug . '#/settings',
             ),

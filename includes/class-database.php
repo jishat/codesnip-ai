@@ -29,8 +29,7 @@ class CodeSnip_AI_Database {
      * Constructor
      */
     public function __construct() {
-        global $wpdb;
-        $this->table_name = $wpdb->prefix . 'codesnip_snippets';
+        $this->table_name = CodeSnip_AI_Config::get_db_table_name();
     }
 
     /**
