@@ -232,7 +232,7 @@ export default function Settings() {
                 variant="outline"
                 className="border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
               >
-                {loading ? 'Testing...' : 'Test API Connection'}
+                {loading ? 'Testing...' : 'Test Saved API Connection'}
               </Button>
             </div>
           </div>
