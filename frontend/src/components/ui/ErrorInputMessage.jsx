@@ -13,6 +13,9 @@ export default function ErrorInputMessage({ className, message, ...props }) {
         'text-muted-foreground data-[error=true]:text-destructive text-sm flex items-center',
         className
       )}
+      style={{
+        wordBreak: 'break-word',
+      }}
       data-error={true}
       {...props}
     >
