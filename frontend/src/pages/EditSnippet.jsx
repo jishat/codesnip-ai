@@ -25,6 +25,7 @@ import ErrorInputMessage from "@/components/ui/ErrorInputMessage";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/Dialog";
 import PromptInput from "@/components/features/AiPrompt/ui/PromptInput";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import SuccessMessage from "@/components/ui/SuccessMessage";
 
 export default function EditSnippet() {
   const navigate = useNavigate();
@@ -43,6 +44,10 @@ export default function EditSnippet() {
     result: "",
     prompt: "",
     notFound: "",
+  });
+  const [successMessage, setSuccessMessage] = useState({
+    snippet: "",
+    result: "",
   });
 
   useEffect(() => {
@@ -165,6 +170,7 @@ export default function EditSnippet() {
     if (!code.trim() || !title.trim()) return;
 
     setErrors({title: '', snippet: '', prompt: '', result: ''})
+    setSuccessMessage({snippet: '', result: ''})
     setLoading(true);
     const { ajax_url, nonce } = window.codesnip_ai_;
 
@@ -204,7 +210,11 @@ export default function EditSnippet() {
     }
 
     if(!data.error && data.message){
-      navigate('/');
+      if(actionFrom === 'ai'){
+        setSuccessMessage({result: data.message});
+      }else{
+        setSuccessMessage({snippet: data.message});
+      }
     }
     setLoading(false);
   };  
@@ -303,6 +313,7 @@ export default function EditSnippet() {
                 {errors?.snippet && (
                   <ErrorInputMessage message={errors.snippet} className="mt-1 " />
                 )}
+                {successMessage?.snippet && <SuccessMessage message={successMessage?.snippet} className="mt-1 " />}
               <div className="flex gap-2">
                 <Button
                   className="cursor-pointer"
@@ -347,6 +358,7 @@ export default function EditSnippet() {
             {errors?.result && (
               <ErrorInputMessage message={errors.result} className="mt-1 ml-4!" />
             )}
+            {successMessage?.result && <SuccessMessage message={successMessage?.result} className="mt-1 ml-4!" />}
             <div className="my-4 ml-4">
               <Button
                 className="cursor-pointer"
