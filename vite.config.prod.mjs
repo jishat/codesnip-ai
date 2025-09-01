@@ -11,20 +11,12 @@ export default defineConfig({
   root: 'frontend',
   plugins: [react({jsxRuntime: 'automatic'}), tailwindcss()],
   
-  // Development server configuration
-  server: {
-    cors: true,
-    hmr: { host: 'localhost' },
-    port: 5173,
-    strictPort: true,
-    host: '0.0.0.0'
-  },
-  
-  // Build configuration for development
+  // Production build configuration
   build: {
     outDir: '../assets',
     emptyOutDir: true,
-    sourcemap: true,
+    sourcemap: false,
+    minify: 'terser',
     rollupOptions: {
       input: path.resolve(__dirname, 'frontend/src/main.jsx'),
       output: {
@@ -39,6 +31,10 @@ export default defineConfig({
           return `[name]-[hash].${ext}`
         }
       }
+    },
+    // Optimize dependencies
+    commonjsOptions: {
+      include: [/node_modules/],
     }
   },
   
@@ -48,8 +44,8 @@ export default defineConfig({
     },
   },
   
-  // Environment variables
+  // Environment variables for production
   define: {
-    __DEV__: JSON.stringify(true),
+    __DEV__: JSON.stringify(false),
   }
 })

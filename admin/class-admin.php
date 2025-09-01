@@ -39,33 +39,52 @@ class CodeSnip_AI_Admin {
      * @param string $hook Current admin page hook
      */
     public function enqueue_scripts($hook) {
-        if (!defined('WP_DEBUG') || !WP_DEBUG) {
-            return; // Only in dev mode
+        // Check if we're on our plugin page
+        if (strpos($hook, 'codesnip-ai') === false) {
+            return;
         }
 
         $slug = CodeSnip_AI_Config::get_plugin_slug();
         $var_prefix = 'codesnip_ai_';
         
-        wp_enqueue_script(
-            $slug . '-vite-client-helper-MODULE', 
-            'http://localhost:5173/wp-content/plugins/codesnip-ai/frontend/src/lib/devHotModule.js', 
-            array(), 
-            null
-        );
-        
-        wp_enqueue_script(
-            $slug . '-vite-client-MODULE', 
-            'http://localhost:5173/wp-content/plugins/codesnip-ai/frontend/@vite/client', 
-            array(), 
-            null
-        );
-        
-        wp_enqueue_script(
-            $slug . '-index-MODULE', 
-            'http://localhost:5173/wp-content/plugins/codesnip-ai/frontend/src/main.jsx', 
-            array(), 
-            null
-        );
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            // Development mode - load from Vite dev server
+            wp_enqueue_script(
+                $slug . '-vite-client-helper-MODULE', 
+                'http://localhost:5173/src/lib/devHotModule.js', 
+                array(), 
+                null
+            );
+            
+            wp_enqueue_script(
+                $slug . '-vite-client-MODULE', 
+                'http://localhost:5173/@vite/client', 
+                array(), 
+                null
+            );
+            
+            wp_enqueue_script(
+                $slug . '-index-MODULE', 
+                'http://localhost:5173/src/main.jsx', 
+                array(), 
+                null
+            );
+        } else {
+            // Production mode - load built assets from assets folder
+            wp_enqueue_style(
+                $slug . '-styles',
+                CODESNIP_AI_PLUGIN_URL . 'assets/index.css',
+                array(),
+                CODESNIP_AI_VERSION
+            );
+            
+            wp_enqueue_script(
+                $slug . '-index-MODULE', 
+                CODESNIP_AI_PLUGIN_URL . 'assets/index.js', 
+                array(), 
+                CODESNIP_AI_VERSION
+            );
+        }
 
         wp_localize_script($slug . '-index-MODULE', $var_prefix, array(
             'ajax_url' => admin_url('admin-ajax.php'),
