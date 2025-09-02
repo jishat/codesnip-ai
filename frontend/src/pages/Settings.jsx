@@ -208,7 +208,6 @@ export default function Settings() {
               </p>
             </div>
 
-            {/* Message Display */}
             {message.text && (
               <div className={`p-3 rounded-md ${
                 message.type === 'success' 

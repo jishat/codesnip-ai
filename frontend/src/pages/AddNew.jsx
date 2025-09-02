@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TopBar from "@/components/features/TopBar";
 import CodeEditor from "@/components/ui/CodeEditor";
@@ -185,10 +185,8 @@ export default function AddNew() {
             </BreadcrumbList>
           </Breadcrumb>
           <TypographyH3 className="pb-2 mt-0!">Add New Snippet</TypographyH3>
-          {/* <div className="bg-[#e5e7eb] rounded-xl p-5"> */}
           <div className="">
             <div className="grid w-full items-center gap-3 mb-6">
-              {/* <Label htmlFor="title">Title</Label> */}
               <div>
                 <Input
                   id="title"
