@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/Input";
 import ErrorInputMessage from "@/components/ui/ErrorInputMessage";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/Dialog";
 import PromptInput from "@/components/features/AiPrompt/ui/PromptInput";
+import config from "@/config/config";
 
 export default function AddNew() {
   const navigate = useNavigate();
@@ -60,15 +61,14 @@ export default function AddNew() {
     }
 
     setLoading(true);
-    const { ajax_url, nonce } = window.codesnip_ai_;
 
     const formData = new URLSearchParams();
     formData.append("action", "codesnip_ai_assist");
     formData.append("snippet", snippet);
     formData.append("prompt", prompt);
-    formData.append("_ajax_nonce", nonce);
+    formData.append("_ajax_nonce", config.NONCE);
 
-    const res = await fetch(ajax_url, {
+    const res = await fetch(config.AJAX_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -119,15 +119,14 @@ export default function AddNew() {
 
     setErrors({title: '', snippet: '', prompt: '', result: ''})
     setLoading(true);
-    const { ajax_url, nonce } = window.codesnip_ai_;
 
     const formData = new URLSearchParams();
     formData.append('snippet', code);
     formData.append('title', title);
     formData.append('action', 'codesnip_ai_save');
-    formData.append('_ajax_nonce', nonce);
+    formData.append('_ajax_nonce', config.NONCE);
 
-    const res = await fetch(ajax_url, {
+    const res = await fetch(config.AJAX_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -165,125 +164,131 @@ export default function AddNew() {
   }
 
   return (
-    <div className="min-h-screen text-gray-800 p-6">
-      <TopBar />
-      <div>
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <button 
-                onClick={() => navigate('/')}
-                className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-              >
-                All Snippets
-              </button>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Add New</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <TypographyH3 className="pb-2 mt-0!">Add New Snippet</TypographyH3>
-        <div className="grid w-full items-center gap-3 mb-6">
-          <Label htmlFor="title">Title</Label>
-          <div>
-            <Input
-              id="title"
-              isInvalid={errors?.title ? true : false}
-              placeholder="Enter title here"
-              value={title}
-              onChange={(val) => setTitle(val.target.value)}
-              className="w-full"
-            />
-            {errors?.title && (
-              <ErrorInputMessage message={errors.title} className="mt-1" />
-            )}
-          </div>
-        </div>
-        <RadioGroup defaultValue="html" className="flex mb-3">
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value="html" id="r1" />
-            <Label htmlFor="r1">HTML</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value="css" id="r2" disabled />
-            <Label htmlFor="r2">CSS</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <RadioGroupItem value="javascript" id="r3" disabled />
-            <Label htmlFor="r3">Javascript</Label>
-          </div>
-        </RadioGroup>
-        <ResizablePanelGroup
-          direction="horizontal"
-          className="max-w-full rounded-lg border md:min-w-[450px]"
-        >
-          <ResizablePanel defaultSize={50}>
-            <TypographyH4 className="mb-4! mt-4! ml-4!">
-              Code Preview
-            </TypographyH4>
-            <CodeEditor value={snippet} onChange={setSnippet} className="pr-1" />
-            <div className="my-4 ml-4">
-                {errors?.snippet && (
-                  <ErrorInputMessage message={errors.snippet} className="mt-1 " />
-                )}
-              <div className="flex gap-2">
-                <Button
-                  className="cursor-pointer"
-                  onClick={() => saveSnippet({actionFrom: 'snippet'})}
-                  disabled={loading}
+    <div className="codesnip-ai-wrapper">
+      <div className="codesnip-ai-content">
+        <TopBar />
+        <div>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <button 
+                  onClick={() => navigate('/')}
+                  className="text-blue-800 hover:text-blue-800 hover:underline cursor-pointer"
                 >
-                  Save Snippet
-                  {loading && <Loader2Icon className="animate-spin" />}
-                </Button>
-
-                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-blue-500 hover:bg-blue-600 cursor-pointer" >
-                      <Sparkles />
-                      AI Assistant
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>AI Assistant</DialogTitle>
-                      <DialogDescription>
-                        Transform your code with AI-powered optimization, Tailwind CSS conversion, and intelligent enhancement 
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div><PromptInput error={errors?.prompt || ''} loading={loading} onSubmitPrompt={onSubmitPrompt} promptValue={promptValue} onPromptChange={setPromptValue} /></div>
-                  </DialogContent>
-                </Dialog>
+                  All Snippets
+                </button>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Add New</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <TypographyH3 className="pb-2 mt-0!">Add New Snippet</TypographyH3>
+          {/* <div className="bg-[#e5e7eb] rounded-xl p-5"> */}
+          <div className="">
+            <div className="grid w-full items-center gap-3 mb-6">
+              {/* <Label htmlFor="title">Title</Label> */}
+              <div>
+                <Input
+                  id="title"
+                  isInvalid={errors?.title ? true : false}
+                  placeholder="Enter title here"
+                  value={title}
+                  onChange={(val) => setTitle(val.target.value)}
+                  className="w-full bg-[#e5e7eb] h-11 border border-[#b2b8c0]"
+                  size="xl"
+                />
+                {errors?.title && (
+                  <ErrorInputMessage message={errors.title} className="mt-1" />
+                )}
               </div>
             </div>
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={50}>
-            <TypographyH4 className="mb-4! mt-4! ml-4!">
-              AI Result
-            </TypographyH4>
-            <CodeEditor
-              value={result}
-              onChange={onChangeResult}
-              placeholder="AI results"
-              className="pr-1"
-            />
-            {errors?.result && (
-              <ErrorInputMessage message={errors.result} className="mt-1 ml-4!" />
-            )}
-            <div className="my-4 ml-4">
-              <Button
-                className="cursor-pointer"
-                onClick={() => saveSnippet({actionFrom: 'ai'})}
-                disabled={loading || !result}
-              >
-                Save Result
-                {loading && <Loader2Icon className="animate-spin" />}
-              </Button>
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+            <RadioGroup defaultValue="html" className="flex mb-3">
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="html" id="r1" className="border-black" />
+                <Label htmlFor="r1">HTML</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="css" id="r2" disabled className="border-black" />
+                <Label htmlFor="r2">CSS</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="javascript" id="r3" disabled className="border-black" />
+                <Label htmlFor="r3">Javascript</Label>
+              </div>
+            </RadioGroup>
+            <ResizablePanelGroup
+              direction="horizontal"
+              className="max-w-full bg-[#e5e7eb] rounded-lg border md:min-w-[450px]"
+            >
+              <ResizablePanel defaultSize={50}>
+                <TypographyH4 className="mb-4! mt-4! ml-4!">
+                  Code Preview
+                </TypographyH4>
+                <CodeEditor value={snippet} onChange={setSnippet} className="pr-1" />
+                <div className="my-4 ml-4">
+                    {errors?.snippet && (
+                      <ErrorInputMessage message={errors.snippet} className="mt-1 " />
+                    )}
+                  <div className="flex gap-2">
+                    <Button
+                      className="cursor-pointer"
+                      onClick={() => saveSnippet({actionFrom: 'snippet'})}
+                      disabled={loading}
+                    >
+                      Save Snippet
+                      {loading && <Loader2Icon className="animate-spin" />}
+                    </Button>
+
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button className="bg-blue-500 hover:bg-blue-600 cursor-pointer" >
+                          <Sparkles />
+                          AI Assistant
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>AI Assistant</DialogTitle>
+                          <DialogDescription>
+                            Transform your code with AI-powered optimization, Tailwind CSS conversion, and intelligent enhancement 
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div><PromptInput error={errors?.prompt || ''} loading={loading} onSubmitPrompt={onSubmitPrompt} promptValue={promptValue} onPromptChange={setPromptValue} /></div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+              </ResizablePanel>
+              <ResizableHandle />
+              <ResizablePanel defaultSize={50}>
+                <TypographyH4 className="mb-4! mt-4! ml-4!">
+                  AI Result
+                </TypographyH4>
+                <CodeEditor
+                  value={result}
+                  onChange={onChangeResult}
+                  placeholder="AI results"
+                  className="pr-1"
+                />
+                {errors?.result && (
+                  <ErrorInputMessage message={errors.result} className="mt-1 ml-4!" />
+                )}
+                <div className="my-4 ml-4">
+                  <Button
+                    className="cursor-pointer"
+                    onClick={() => saveSnippet({actionFrom: 'ai'})}
+                    disabled={loading || !result}
+                  >
+                    Save Result
+                    {loading && <Loader2Icon className="animate-spin" />}
+                  </Button>
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div>
+        </div>
       </div>
     </div>
   );

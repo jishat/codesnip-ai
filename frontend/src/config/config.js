@@ -1,10 +1,10 @@
-const SERVER_VARIABLES = 'codesnip_ai_' 
+const SERVER_VARIABLES = window.codesnip_ai_ || {}
 
-const getServerVariable = (key, fallback) => {
+const getServerVariable = (key, fallback, required = true) => {
     if (!key && fallback) return fallback
-    if (!(key in SERVER_VARIABLES) || !SERVER_VARIABLES?.[key]) {
-      if (import.meta.env.MODE !== 'test') {
-        console.error('🚥 Missing server variable:', key)
+    if (!SERVER_VARIABLES || !(key in SERVER_VARIABLES) || !SERVER_VARIABLES?.[key]) {
+      if (required && import.meta.env.MODE !== 'test') {
+        console.error('🚥 Missing required server variable:', key)
       }
   
       if (fallback) return fallback
@@ -14,9 +14,9 @@ const getServerVariable = (key, fallback) => {
   }
 
   const config = {
-    AJAX_URL: getServerVariable('ajaxURL', 'http://.local/wp-admin/admin-ajax.php'),
+    AJAX_URL: getServerVariable('ajax_url', 'http://.local/wp-admin/admin-ajax.php'),
     NONCE: getServerVariable('nonce', ''),
-    ROUTE_PREFIX: getServerVariable('routePrefix', 'codesnip_ai_'),
+    ROUTE_PREFIX: getServerVariable('routePrefix', 'codesnip_ai_', false),
   }
 
   export default config

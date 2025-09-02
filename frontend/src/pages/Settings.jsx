@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import config from "@/config/config"
 
 export default function Settings() {
   const [settings, setSettings] = useState({
@@ -46,9 +47,9 @@ export default function Settings() {
     try {
       const formData = new FormData()
       formData.append('action', 'codesnip_ai_get_settings')
-      formData.append('_ajax_nonce', window.codesnip_ai_.nonce)
+      formData.append('_ajax_nonce', config.NONCE)
 
-      const response = await fetch(window.codesnip_ai_.ajax_url, {
+      const response = await fetch(config.AJAX_URL, {
         method: 'POST',
         body: formData
       })
@@ -74,12 +75,12 @@ export default function Settings() {
     try {
       const formData = new FormData()
       formData.append('action', 'codesnip_ai_save_settings')
-      formData.append('_ajax_nonce', window.codesnip_ai_.nonce)
+      formData.append('_ajax_nonce', config.NONCE)
       formData.append('api_key', settings.apiKey)
       formData.append('model', settings.model)
       formData.append('max_tokens', settings.maxTokens)
 
-      const response = await fetch(window.codesnip_ai_.ajax_url, {
+      const response = await fetch(config.AJAX_URL, {
         method: 'POST',
         body: formData
       })
@@ -114,11 +115,11 @@ export default function Settings() {
     try {
       const formData = new FormData()
       formData.append('action', 'codesnip_ai_assist')
-      formData.append('_ajax_nonce', window.codesnip_ai_.nonce)
+      formData.append('_ajax_nonce', config.NONCE)
       formData.append('prompt', 'Hello, this is a test message to verify the API connection.')
       formData.append('snippet', '<div>Test</div>')
 
-      const response = await fetch(window.codesnip_ai_.ajax_url, {
+      const response = await fetch(config.AJAX_URL, {
         method: 'POST',
         body: formData
       })
@@ -138,42 +139,43 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen text-gray-800 p-6">
-      <TopBar />
-      <div>
-        <div className="flex justify-between items-center border-b pb-2 mb-8">
+    <div className="codesnip-ai-wrapper">
+      <div className="codesnip-ai-content">
+        <TopBar />
+        <div>
+        <div className="flex justify-between items-center mb-8">
           <TypographyH3 className="m-0!">Settings</TypographyH3>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div className="bg-[#ffffff8c] rounded-lg shadow-sm border-none p-6 mb-6">
           <TypographyH4 className="mb-4 mt-0!">OpenAI Configuration</TypographyH4>
           
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className='max-w-xl'>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-black mb-2">
                 OpenAI API Key
               </label>
               <Input
                 value={settings.apiKey}
                 onChange={(e) => handleInputChange('apiKey', e.target.value)}
                 placeholder="sk-••••••••••••••••••••"
-                className=""
+                className="bg-[#f4f6fa] border border-[#c9cfd7]"
               />
 
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-700 mt-1">
                 You can get your API Keys in your <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900">OpenAI Account</a>.
               </p>
             </div>
 
             <div className='max-w-xl'>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-black mb-2">
                 AI Model
               </label>
               <Select 
                 onValueChange={(value) => handleInputChange('model', value)}
                 value={settings.model}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-[#f4f6fa] border border-[#c9cfd7]">
                   <SelectValue placeholder="Select a fruit" />
                 </SelectTrigger>
                 <SelectContent>
@@ -185,13 +187,13 @@ export default function Settings() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-700 mt-1">
                 Choose the OpenAI model for code generation. GPT-4 models provide better results but cost more.
               </p>
             </div>
 
             <div className='max-w-xl'>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-black mb-2">
                 Max Tokens
               </label>
               <Input
@@ -199,9 +201,9 @@ export default function Settings() {
                 onChange={(e) => handleInputChange('maxTokens', parseInt(e.target.value) || 1500)}
                 min="1"
                 max="4000"
-                className="w-full"
+                className="w-full bg-[#f4f6fa] border border-[#c9cfd7]"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-700 mt-1">
                 Maximum number of tokens in the AI response (1-4000). Higher values allow for longer responses but cost more.
               </p>
             </div>
@@ -221,7 +223,7 @@ export default function Settings() {
               <Button
                 onClick={handleSave}
                 disabled={loading || !settings.apiKey}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 cursor-pointer"
+                className=" disabled:bg-gray-400 cursor-pointer"
               >
                 {loading ? 'Saving...' : 'Save Settings'}
               </Button>
@@ -230,7 +232,7 @@ export default function Settings() {
                 onClick={testApiConnection}
                 disabled={loading || !settings.apiKey}
                 variant="outline"
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 cursor-pointer"
+                className="border-gray-300 text-black hover:bg-gray-50 cursor-pointer"
               >
                 {loading ? 'Testing...' : 'Test Saved API Connection'}
               </Button>
@@ -238,14 +240,15 @@ export default function Settings() {
           </div>
         </div>
 
-        <div className="bg-blue-50 rounded-lg border border-blue-200 p-6">
-          <TypographyH4 className="text-blue-800 mb-3">Getting Started</TypographyH4>
-          <div className="text-blue-700 space-y-2 text-sm">
+        <div className="bg-[#ffffff8c] rounded-lg border border-blue-200 p-6">
+          <TypographyH4 className="text-black mb-3 mt-0!">Getting Started</TypographyH4>
+          <div className="text-black space-y-2 text-sm">
             <p>1. <strong>Get an OpenAI API Key:</strong> Visit <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900">OpenAI Platform</a> to create your API key.</p>
             <p>2. <strong>Enter your API key</strong> in the field above and save the settings.</p>
             <p>3. <strong>Test the connection</strong> to ensure everything is working correctly.</p>
             <p>4. <strong>Start using CodeSnip AI</strong> to generate and manage your code snippets!</p>
           </div>
+        </div>
         </div>
       </div>
     </div>

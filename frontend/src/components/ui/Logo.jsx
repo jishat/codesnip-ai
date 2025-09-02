@@ -1,6 +1,6 @@
 export default function Logo({size = 40, className = ''}){
   return (
-    <svg  x="0px" y="0px" viewBox="0 0 194.69 161.41" fill="currentColor" width={size} height={size} className={`${className} text-teal-400!`}>
+    <svg  x="0px" y="0px" viewBox="0 0 194.69 161.41" fill="currentColor" width={size} height={size} className={`${className} text-black!`}>
 
       <path fill="currentColor" d="M122.33,46.73c0-10.41-0.04-20.81,0.04-31.22c0.01-1.75-0.7-3.99,1.06-5.13c2.17-1.42,3.86,0.74,5.43,1.71
         c10.03,6.22,19.33,13.59,30.5,18.01c9.26,3.66,18.79,5.41,28.61,6.12c5.7,0.42,7.74,2.71,6.27,8.19

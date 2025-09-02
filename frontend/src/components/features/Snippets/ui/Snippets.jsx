@@ -8,10 +8,10 @@ export default function Snippets() {
   return (
     <Tabs defaultValue="allSnippet">
       <TabsList>
-        <TabsTrigger value="allSnippet">All Snippets</TabsTrigger>
-        <TabsTrigger value="htmlSnippet">HTML</TabsTrigger>
-        <TabsTrigger value="cssSnippet">CSS</TabsTrigger>
-        <TabsTrigger value="jsSnippet">JavaScript</TabsTrigger>
+        <TabsTrigger className="cursor-pointer" value="allSnippet">All Snippets</TabsTrigger>
+        <TabsTrigger className="cursor-pointer" value="htmlSnippet">HTML</TabsTrigger>
+        <TabsTrigger className="cursor-pointer" value="cssSnippet">CSS</TabsTrigger>
+        <TabsTrigger className="cursor-pointer" value="jsSnippet">JavaScript</TabsTrigger>
       </TabsList>
       <TabsContent value="allSnippet">
         <AllSnippetList />

@@ -4,7 +4,7 @@ import { Badge } from "../../../../components/ui/Badge";
 import { Switch } from "../../../../components/ui/Switch";
 import { Button } from "../../../../components/ui/Button";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../../components/ui/Popover";
-import { Loader2Icon, Edit, Trash2, Copy, Check, AlertTriangle } from "lucide-react";
+import { Loader2Icon, Edit, Trash2, Copy, Check, AlertTriangle, Plus } from "lucide-react";
 
 export default function HtmlSnippetList() {
   const navigate = useNavigate();
@@ -162,7 +162,10 @@ export default function HtmlSnippetList() {
     return (
       <div className="text-center py-8">
         <p className="text-gray-500 mb-4">No HTML snippets found</p>
-        <Button className="cursor-pointer" onClick={() => navigate('/add-new')}>Add New HTML Snippet</Button>
+        <Button className="cursor-pointer" onClick={() => navigate('/add-new')}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add New HTML Snippet
+        </Button>
       </div>
     );
   }
@@ -186,7 +189,7 @@ export default function HtmlSnippetList() {
             <tr key={snippet.id} className="border-b border-gray-200 hover:bg-gray-100">
               <td className="py-3 px-6 text-left">{snippet.id}</td>
               <td className="py-3 px-6 text-left">
-                <Badge variant="default">HTML</Badge>
+                <Badge variant="default" className="bg-blue-400">HTML</Badge>
               </td>
               <td className="py-3 px-6 text-left">{snippet.title}</td>
               <td className="py-3 px-6 text-left">
