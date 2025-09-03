@@ -70,17 +70,16 @@ class CodeSnip_AI_Admin {
                 null
             );
         } else {
-            // Production mode - load built assets from assets folder
             wp_enqueue_style(
                 $slug . '-styles',
-                CODESNIP_AI_PLUGIN_URL . 'assets/index.css',
+                CODESNIP_AI_PLUGIN_URL . 'build/index.css',
                 array(),
                 CODESNIP_AI_VERSION
             );
             
             wp_enqueue_script(
                 $slug . '-index-MODULE', 
-                CODESNIP_AI_PLUGIN_URL . 'assets/index.js', 
+                CODESNIP_AI_PLUGIN_URL . 'build/index.js', 
                 array(), 
                 CODESNIP_AI_VERSION
             );

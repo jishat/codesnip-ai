@@ -22,7 +22,7 @@ export default defineConfig({
   
   // Build configuration for development
   build: {
-    outDir: '../assets',
+    outDir: '../build',
     emptyOutDir: true,
     sourcemap: true,
     rollupOptions: {

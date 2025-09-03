@@ -13,7 +13,7 @@ export default defineConfig({
   
   // Production build configuration
   build: {
-    outDir: '../assets',
+    outDir: '../build',
     emptyOutDir: true,
     sourcemap: false,
     minify: 'terser',

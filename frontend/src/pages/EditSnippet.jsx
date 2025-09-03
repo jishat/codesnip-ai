@@ -259,7 +259,7 @@ export default function EditSnippet() {
               <BreadcrumbItem>
                 <button 
                   onClick={() => navigate('/')}
-                  className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                  className="text-blue-800 hover:text-blue-800 hover:underline cursor-pointer"
                 >
                   All Snippets
                 </button>
@@ -272,38 +272,36 @@ export default function EditSnippet() {
           </Breadcrumb>
           <TypographyH3 className="pb-2 mt-0!">Edit Snippet</TypographyH3>
           <div className="grid w-full items-center gap-3 mb-6">
-            <Label htmlFor="title">Title</Label>
-            <div>
-              <Input
-                id="title"
-                isInvalid={errors?.title ? true : false}
-                placeholder="Enter title here"
-                value={title}
-                onChange={(val) => setTitle(val.target.value)}
-                className="w-full"
-              />
-              {errors?.title && (
-                <ErrorInputMessage message={errors.title} className="mt-1" />
-              )}
-            </div>
+            <Input
+              id="title"
+              isInvalid={errors?.title ? true : false}
+              placeholder="Enter title here"
+              value={title}
+              onChange={(val) => setTitle(val.target.value)}
+              className="w-full bg-[#e5e7eb] h-11 border border-[#b2b8c0]"
+            />
+            {errors?.title && (
+              <ErrorInputMessage message={errors.title} className="mt-1" />
+            )}
+
           </div>
           <RadioGroup value={snippetType} onValueChange={setSnippetType} className="flex mb-3">
             <div className="flex items-center gap-2">
-              <RadioGroupItem value="html" id="r1" />
+              <RadioGroupItem value="html" id="r1" className="border-black" />
               <Label htmlFor="r1">HTML</Label>
             </div>
             <div className="flex items-center gap-2">
-              <RadioGroupItem value="css" id="r2" disabled />
+              <RadioGroupItem value="css" id="r2" disabled className="border-black" />
               <Label htmlFor="r2">CSS</Label>
             </div>
             <div className="flex items-center gap-2">
-              <RadioGroupItem value="javascript" id="r3" disabled />
+              <RadioGroupItem value="javascript" id="r3" disabled className="border-black" />
               <Label htmlFor="r3">Javascript</Label>
             </div>
           </RadioGroup>
           <ResizablePanelGroup
             direction="horizontal"
-            className="max-w-full rounded-lg border md:min-w-[450px]"
+            className="max-w-full bg-[#e5e7eb] rounded-lg border md:min-w-[450px]"
           >
             <ResizablePanel defaultSize={50}>
               <TypographyH4 className="mb-4! mt-4! ml-4!">
