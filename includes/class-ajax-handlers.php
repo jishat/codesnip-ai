@@ -47,12 +47,13 @@ class CodeSnip_AI_Ajax_Handlers {
      * AI Assist callback
      */
     public function assist_callback() {
-        if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], CodeSnip_AI_Config::get_nonce_action())) {
+        $nonce = isset($_POST['_ajax_nonce']) ? sanitize_text_field(wp_unslash($_POST['_ajax_nonce'])) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, CodeSnip_AI_Config::get_nonce_action())) {
             wp_send_json_error(array('error' => array('prompt' => __('Invalid nonce', 'codesnip-ai'))), 403);
         }
 
-        $raw_prompt  = isset($_POST['prompt']) ? trim(wp_unslash($_POST['prompt'])) : '';
-        $raw_snippet = isset($_POST['snippet']) ? trim(wp_unslash($_POST['snippet'])) : '';
+        $raw_prompt  = isset($_POST['prompt']) ? sanitize_textarea_field(wp_unslash($_POST['prompt'])) : '';
+        $raw_snippet = isset($_POST['snippet']) ? sanitize_textarea_field(wp_unslash($_POST['snippet'])) : '';
         
         if (!isset($raw_prompt) || empty($raw_prompt)) {
             wp_send_json_error(array('error' => array('prompt' => __('Prompt must required', 'codesnip-ai'))), 403);
@@ -91,7 +92,7 @@ class CodeSnip_AI_Ajax_Handlers {
             - No markdown or explanation.
             - No need to add any other text or explanation.
             
-            Code/snippet:\n\n" . $_POST['snippet'];
+            Code/snippet:\n\n" . $raw_snippet;
 
         $api_key = get_option('codesnip_ai_openai_api_key', '');
         if (empty($api_key)) {
@@ -158,11 +159,12 @@ class CodeSnip_AI_Ajax_Handlers {
      * Save snippet callback
      */
     public function save_callback() {
-        if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], CodeSnip_AI_Config::get_nonce_action())) {
+        $nonce = isset($_POST['_ajax_nonce']) ? sanitize_text_field(wp_unslash($_POST['_ajax_nonce'])) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, CodeSnip_AI_Config::get_nonce_action())) {
             wp_send_json_error(array('error' => array('common' => __('Invalid nonce', 'codesnip-ai'))), 403);
         }
 
-        $raw_input = isset($_POST['snippet']) ? trim(wp_unslash($_POST['snippet'])) : '';
+        $raw_input = isset($_POST['snippet']) ? sanitize_textarea_field(wp_unslash($_POST['snippet'])) : '';
         $disallowed = array('html', 'body', 'script', 'link', 'footer');
         if (!isset($raw_input) || empty($raw_input)) {
             wp_send_json_error(array('error' => array('snippet' => __('Code must required', 'codesnip-ai'))), 403);
@@ -197,6 +199,7 @@ class CodeSnip_AI_Ajax_Handlers {
 
         global $wpdb;
         $snippet_slug = $this->generate_unique_slug($title);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
         $wpdb->insert(CodeSnip_AI_Config::get_db_table_name(), array(
             'snippet' => $snippet,
             'title' => $title,
@@ -216,13 +219,15 @@ class CodeSnip_AI_Ajax_Handlers {
      * Get all snippets callback
      */
     public function get_all_callback() {
-        if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], CodeSnip_AI_Config::get_nonce_action())) {
+        $nonce = isset($_POST['_ajax_nonce']) ? sanitize_text_field(wp_unslash($_POST['_ajax_nonce'])) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, CodeSnip_AI_Config::get_nonce_action())) {
             wp_send_json_error(array('error' => __('Invalid nonce', 'codesnip-ai')), 403);
         }
 
         global $wpdb;
         $table = CodeSnip_AI_Config::get_db_table_name();
         
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
         $snippets = $wpdb->get_results(
             "SELECT id, title, slug, status, created_at, type 
              FROM " . esc_sql($table) . " 
@@ -254,7 +259,8 @@ class CodeSnip_AI_Ajax_Handlers {
      * Get snippets by type callback
      */
     public function get_by_type_callback() {
-        if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], CodeSnip_AI_Config::get_nonce_action())) {
+        $nonce = isset($_POST['_ajax_nonce']) ? sanitize_text_field(wp_unslash($_POST['_ajax_nonce'])) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, CodeSnip_AI_Config::get_nonce_action())) {
             wp_send_json_error(array('error' => __('Invalid nonce', 'codesnip-ai')), 403);
         }
 
@@ -271,6 +277,7 @@ class CodeSnip_AI_Ajax_Handlers {
             wp_send_json_error(array('error' => __('Type is invalid', 'codesnip-ai')), 400);
         }
         
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
         $snippets = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT id, title, snippet, slug, status, created_at, type 
@@ -306,7 +313,8 @@ class CodeSnip_AI_Ajax_Handlers {
      * Toggle snippet status callback
      */
     public function toggle_status_callback() {
-        if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], CodeSnip_AI_Config::get_nonce_action())) {
+        $nonce = isset($_POST['_ajax_nonce']) ? sanitize_text_field(wp_unslash($_POST['_ajax_nonce'])) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, CodeSnip_AI_Config::get_nonce_action())) {
             wp_send_json_error(array('error' => __('Invalid nonce', 'codesnip-ai')), 403);
         }
 
@@ -325,6 +333,7 @@ class CodeSnip_AI_Ajax_Handlers {
         global $wpdb;
         $table = CodeSnip_AI_Config::get_db_table_name();
         
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
         $result = $wpdb->update(
             $table,
             array('status' => $status),
@@ -344,7 +353,8 @@ class CodeSnip_AI_Ajax_Handlers {
      * Delete snippet callback
      */
     public function delete_callback() {
-        if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], CodeSnip_AI_Config::get_nonce_action())) {
+        $nonce = isset($_POST['_ajax_nonce']) ? sanitize_text_field(wp_unslash($_POST['_ajax_nonce'])) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, CodeSnip_AI_Config::get_nonce_action())) {
             wp_send_json_error(array('error' => __('Invalid nonce', 'codesnip-ai')), 403);
         }
 
@@ -361,6 +371,7 @@ class CodeSnip_AI_Ajax_Handlers {
         global $wpdb;
         $table = CodeSnip_AI_Config::get_db_table_name();
         
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
         $result = $wpdb->delete(
             $table,
             array('id' => $snippet_id),
@@ -378,7 +389,8 @@ class CodeSnip_AI_Ajax_Handlers {
      * Get snippet by ID callback
      */
     public function get_by_id_callback() {
-        if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], CodeSnip_AI_Config::get_nonce_action())) {
+        $nonce = isset($_POST['_ajax_nonce']) ? sanitize_text_field(wp_unslash($_POST['_ajax_nonce'])) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, CodeSnip_AI_Config::get_nonce_action())) {
             wp_send_json_error(array('error' => __('Invalid nonce', 'codesnip-ai')), 403);
         }
 
@@ -395,6 +407,7 @@ class CodeSnip_AI_Ajax_Handlers {
         global $wpdb;
         $table = CodeSnip_AI_Config::get_db_table_name();
         
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
         $snippet = $wpdb->get_row($wpdb->prepare(
             "SELECT id, title, snippet, slug, status, created_at, type
              FROM " . esc_sql($table) . "
@@ -424,7 +437,8 @@ class CodeSnip_AI_Ajax_Handlers {
      * Update snippet callback
      */
     public function update_callback() {
-        if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], CodeSnip_AI_Config::get_nonce_action())) {
+        $nonce = isset($_POST['_ajax_nonce']) ? sanitize_text_field(wp_unslash($_POST['_ajax_nonce'])) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, CodeSnip_AI_Config::get_nonce_action())) {
             wp_send_json_error(array('error' => array('common' => __('Invalid nonce', 'codesnip-ai'))), 403);
         }
 
@@ -448,7 +462,7 @@ class CodeSnip_AI_Ajax_Handlers {
             wp_send_json_error(array('error' => array('common' => __('Type is invalid', 'codesnip-ai'))), 400);
         }
 
-        $raw_input = isset($_POST['snippet']) ? trim(wp_unslash($_POST['snippet'])) : '';
+        $raw_input = isset($_POST['snippet']) ? sanitize_textarea_field(wp_unslash($_POST['snippet'])) : '';
         if (empty($raw_input)) {
             wp_send_json_error(array('error' => array('snippet' => __('Snippet content is required', 'codesnip-ai'))), 400);
         }
@@ -476,6 +490,7 @@ class CodeSnip_AI_Ajax_Handlers {
         
         $slug = $this->generate_unique_slug($title);
         
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
         $result = $wpdb->update(
             $table,
             array(
@@ -500,7 +515,8 @@ class CodeSnip_AI_Ajax_Handlers {
      * Save OpenAI settings callback
      */
     public function save_settings_callback() {
-        if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], CodeSnip_AI_Config::get_nonce_action())) {
+        $nonce = isset($_POST['_ajax_nonce']) ? sanitize_text_field(wp_unslash($_POST['_ajax_nonce'])) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, CodeSnip_AI_Config::get_nonce_action())) {
             wp_send_json_error(array('error' => __('Invalid nonce', 'codesnip-ai')), 403);
         }
 
@@ -561,7 +577,8 @@ class CodeSnip_AI_Ajax_Handlers {
      * Get OpenAI settings callback
      */
     public function get_settings_callback() {
-        if (!isset($_POST['_ajax_nonce']) || !wp_verify_nonce($_POST['_ajax_nonce'], CodeSnip_AI_Config::get_nonce_action())) {
+        $nonce = isset($_POST['_ajax_nonce']) ? sanitize_text_field(wp_unslash($_POST['_ajax_nonce'])) : '';
+        if (empty($nonce) || !wp_verify_nonce($nonce, CodeSnip_AI_Config::get_nonce_action())) {
             wp_send_json_error(array('error' => __('Invalid nonce', 'codesnip-ai')), 403);
         }
 
@@ -594,6 +611,7 @@ class CodeSnip_AI_Ajax_Handlers {
         $counter = 1;
 
         // Check if the slug already exists
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
         while ($wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM " . esc_sql($table_name) . " WHERE slug = %s", $slug)) > 0) {
             $slug = $original_slug . '-' . $counter;
             $counter++;
