@@ -28,6 +28,7 @@ delete_option('codesnip_ai_openai_max_tokens');
 global $wpdb;
 $table_name = $wpdb->prefix . 'codesnip_snippets';
 
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Custom table operation
 $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %s", $table_name));
 
 // Clear any cached data that has been removed

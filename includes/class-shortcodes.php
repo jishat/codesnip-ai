@@ -44,6 +44,7 @@ class CodeSnip_AI_Shortcodes {
         $atts = shortcode_atts(array('id' => 0), $atts);
         
         // Get snippet with status check
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table operation
         $snippet_data = $wpdb->get_row($wpdb->prepare(
             "SELECT snippet, type, status FROM " . esc_sql(CodeSnip_AI_Config::get_db_table_name()) . " WHERE id = %d", 
             $atts['id']

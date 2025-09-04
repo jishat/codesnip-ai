@@ -2,12 +2,12 @@
 Contributors: jishat
 Tags: html, snippets, code, ai, openai
 Requires at least: 6.0
-Tested up to: 6.8.2
+Tested up to: 6.8
 Stable tag: 1.0.0
 Requires PHP: 7.4
 License: GPLv2 or later
 
-Save and manage your HTML code snippets safely inside WordPress. Optionally, connect your own AI provider (OpenAI) to optimize or refactor snippets. Initial release supports HTML only; CSS and JS snippet support is coming soon.
+Save and manage HTML code snippets safely in WordPress. Connect AI providers to optimize snippets. HTML support included; CSS/JS coming soon.
 
 == Description ==
 

@@ -39,6 +39,7 @@ class CodeSnip_AI_Database {
         global $wpdb;
         
         // Check if table already exists
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table operation
         $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $this->table_name)) == $this->table_name;
         
         if (!$table_exists) {
@@ -55,6 +56,7 @@ class CodeSnip_AI_Database {
             ) $charset_collate;";
 
             require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Plugin activation table creation
             dbDelta($sql);
         }
     }

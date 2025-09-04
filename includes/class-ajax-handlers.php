@@ -199,7 +199,7 @@ class CodeSnip_AI_Ajax_Handlers {
 
         global $wpdb;
         $snippet_slug = $this->generate_unique_slug($title);
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table operation
         $wpdb->insert(CodeSnip_AI_Config::get_db_table_name(), array(
             'snippet' => $snippet,
             'title' => $title,
@@ -227,7 +227,7 @@ class CodeSnip_AI_Ajax_Handlers {
         global $wpdb;
         $table = CodeSnip_AI_Config::get_db_table_name();
         
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table operation
         $snippets = $wpdb->get_results(
             "SELECT id, title, slug, status, created_at, type 
              FROM " . esc_sql($table) . " 
@@ -277,7 +277,7 @@ class CodeSnip_AI_Ajax_Handlers {
             wp_send_json_error(array('error' => __('Type is invalid', 'codesnip-ai')), 400);
         }
         
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table operation
         $snippets = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT id, title, snippet, slug, status, created_at, type 
@@ -333,7 +333,7 @@ class CodeSnip_AI_Ajax_Handlers {
         global $wpdb;
         $table = CodeSnip_AI_Config::get_db_table_name();
         
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table operation
         $result = $wpdb->update(
             $table,
             array('status' => $status),
@@ -371,7 +371,7 @@ class CodeSnip_AI_Ajax_Handlers {
         global $wpdb;
         $table = CodeSnip_AI_Config::get_db_table_name();
         
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table operation
         $result = $wpdb->delete(
             $table,
             array('id' => $snippet_id),
@@ -407,7 +407,7 @@ class CodeSnip_AI_Ajax_Handlers {
         global $wpdb;
         $table = CodeSnip_AI_Config::get_db_table_name();
         
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table operation
         $snippet = $wpdb->get_row($wpdb->prepare(
             "SELECT id, title, snippet, slug, status, created_at, type
              FROM " . esc_sql($table) . "
@@ -490,7 +490,7 @@ class CodeSnip_AI_Ajax_Handlers {
         
         $slug = $this->generate_unique_slug($title);
         
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table operation
         $result = $wpdb->update(
             $table,
             array(
@@ -611,7 +611,7 @@ class CodeSnip_AI_Ajax_Handlers {
         $counter = 1;
 
         // Check if the slug already exists
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table operation
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table operation
         while ($wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM " . esc_sql($table_name) . " WHERE slug = %s", $slug)) > 0) {
             $slug = $original_slug . '-' . $counter;
             $counter++;

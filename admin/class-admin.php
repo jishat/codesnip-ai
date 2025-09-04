@@ -53,21 +53,24 @@ class CodeSnip_AI_Admin {
                 $slug . '-vite-client-helper-MODULE', 
                 'http://localhost:5173/src/lib/devHotModule.js', 
                 array(), 
-                null
+                time(), // Use timestamp for development to prevent caching
+                true
             );
             
             wp_enqueue_script(
                 $slug . '-vite-client-MODULE', 
                 'http://localhost:5173/@vite/client', 
                 array(), 
-                null
+                time(), // Use timestamp for development to prevent caching
+                true
             );
             
             wp_enqueue_script(
                 $slug . '-index-MODULE', 
                 'http://localhost:5173/src/main.jsx', 
                 array(), 
-                null
+                time(), // Use timestamp for development to prevent caching
+                true
             );
         } else {
             wp_enqueue_style(
@@ -81,7 +84,8 @@ class CodeSnip_AI_Admin {
                 $slug . '-index-MODULE', 
                 CODESNIP_AI_PLUGIN_URL . 'build/index.js', 
                 array(), 
-                CODESNIP_AI_VERSION
+                CODESNIP_AI_VERSION,
+                true
             );
         }
 
