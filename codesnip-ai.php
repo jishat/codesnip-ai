@@ -132,8 +132,7 @@ final class CodeSnip_AI_Plugin {
      * Plugin deactivation
      */
     public function deactivate() {
-        // Plugin deactivated - keep all data
-        // Only clean up when completely uninstalled via uninstall.php
+        // Plugin deactivated
     }
 }
 
