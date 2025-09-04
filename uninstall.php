@@ -28,7 +28,7 @@ delete_option('codesnip_ai_openai_max_tokens');
 global $wpdb;
 $table_name = $wpdb->prefix . 'codesnip_snippets';
 
-$wpdb->query("DROP TABLE IF EXISTS $table_name");
+$wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %s", $table_name));
 
 // Clear any cached data that has been removed
 wp_cache_flush();

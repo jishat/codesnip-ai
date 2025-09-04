@@ -39,7 +39,7 @@ class CodeSnip_AI_Database {
         global $wpdb;
         
         // Check if table already exists
-        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$this->table_name}'") == $this->table_name;
+        $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $this->table_name)) == $this->table_name;
         
         if (!$table_exists) {
             $charset_collate = $wpdb->get_charset_collate();

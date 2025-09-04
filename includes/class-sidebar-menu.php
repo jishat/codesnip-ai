@@ -39,8 +39,8 @@ class CodeSnip_AI_SideBar_Menu {
         return array(
             'Home' => array(
                 'type'       => 'menu',
-                'title'      => __('CodeSnip AI - Admin Panel', CodeSnip_AI_Config::get_text_domain()),
-                'name'       => __('CodeSnip AI', CodeSnip_AI_Config::get_text_domain()),
+                'title'      => __('CodeSnip AI - Admin Panel', 'codesnip-ai'),
+                'name'       => __('CodeSnip AI', 'codesnip-ai'),
                 'capability' => 'edit_posts',
                 'slug'       => $slug,
                 'callback'   => array($this, 'render_app'),
@@ -50,21 +50,21 @@ class CodeSnip_AI_SideBar_Menu {
             'All Snippets' => array(
                 'type'       => 'submenu',
                 'parent'     => $slug,
-                'name'       => __('All Snippets', CodeSnip_AI_Config::get_text_domain()),
+                'name'       => __('All Snippets', 'codesnip-ai'),
                 'capability' => 'edit_posts',
                 'slug'       => $slug . '#/',
             ),
             'Add New' => array(
                 'type'       => 'submenu',
                 'parent'     => $slug,
-                'name'       => __('Add New', CodeSnip_AI_Config::get_text_domain()),
+                'name'       => __('Add New', 'codesnip-ai'),
                 'capability' => 'edit_posts',
                 'slug'       => $slug . '#/add-new',
             ),
             'Settings' => array(
                 'type'       => 'submenu',
                 'parent'     => $slug,
-                'name'       => __('Settings', CodeSnip_AI_Config::get_text_domain()),
+                'name'       => __('Settings', 'codesnip-ai'),
                 'capability' => 'manage_options',
                 'slug'       => $slug . '#/settings',
             ),

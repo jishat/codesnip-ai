@@ -45,7 +45,7 @@ class CodeSnip_AI_Shortcodes {
         
         // Get snippet with status check
         $snippet_data = $wpdb->get_row($wpdb->prepare(
-            "SELECT snippet, type, status FROM " . CodeSnip_AI_Config::get_db_table_name() . " WHERE id = %d", 
+            "SELECT snippet, type, status FROM " . esc_sql(CodeSnip_AI_Config::get_db_table_name()) . " WHERE id = %d", 
             $atts['id']
         ), ARRAY_A);
         
