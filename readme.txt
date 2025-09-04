@@ -1,14 +1,13 @@
 === CodeSnip AI ===
-Contributors: Mohammad Azizur Rahman Jishat
-Tags: html, snippets, code, ai, openai, claude
+Contributors: jishat
+Tags: html, snippets, code, ai, openai
 Requires at least: 6.0
-Tested up to: 6.6
+Tested up to: 6.8.2
 Stable tag: 1.0.0
 Requires PHP: 7.4
 License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Save and manage your HTML code snippets safely inside WordPress. Optionally, connect your own AI provider (OpenAI or Claude) to optimize or refactor snippets. Initial release supports HTML only; CSS and JS snippet support is coming soon.
+Save and manage your HTML code snippets safely inside WordPress. Optionally, connect your own AI provider (OpenAI) to optimize or refactor snippets. Initial release supports HTML only; CSS and JS snippet support is coming soon.
 
 == Description ==
 
@@ -23,12 +22,12 @@ This makes it easy to store, organize, and reuse snippets without editing theme 
 - Save and manage HTML snippets securely.
 - Sanitization and validation of all snippet input.
 - Optional AI Assistant for snippet optimization or refactoring.
-- Supports external AI providers (OpenAI or Claude) using **your own API key**.
+- Supports external AI providers (OpenAI) using **your own API key**.
 - No API key required for core snippet management.
 - Secure WordPress coding practices (escaping, sanitization, capability checks).
 
 **AI Assistant (Optional):**
-- If you want to use AI to optimize your snippets, you can enter your own API key (OpenAI or Claude) in the plugin settings.
+- If you want to use AI to optimize your snippets, you can enter your own API key (OpenAI) in the plugin settings.
 - No key is provided by this plugin. You must bring your own.
 - If you do not configure a key, AI features remain disabled.  
 - All AI input/output is sanitized before being stored or displayed.
@@ -53,7 +52,7 @@ No. The plugin works fully for saving and managing HTML snippets without any API
 Only if you want to use the AI assistant features do you need to provide your own key.
 
 = Does the plugin send my code to external services? =
-Only if you use the AI Assistant. In that case, your snippet and prompt are sent to your chosen AI provider (OpenAI or Claude).  
+Only if you use the AI Assistant. In that case, your snippet and prompt are sent to your chosen AI provider (OpenAI or others which coming soon).  
 The plugin itself does not log or share your data.
 
 = Can I save CSS, JS, or PHP snippets? =
@@ -63,12 +62,14 @@ Support for **CSS and JavaScript** snippets is planned in future releases.
 = Why do I need to provide my own API key? =
 For security and transparency. The plugin does not include or share any API keys. If you choose to enable AI features, you must provide your own key from your AI provider.
 
-== Privacy ==
+== Privacy Policy ==
 This plugin does not collect or share any personal data by default.  
 All snippets are stored locally in your WordPress database.
 
-If you choose to enable the optional AI Assistant feature and configure your own API key (OpenAI or Claude), then your snippet text and prompt will be sent to that external provider for processing. No data is sent anywhere else, and the plugin does not log or store any AI responses outside of your WordPress database.
+If you choose to enable the optional AI Assistant feature and configure your own API key (OpenAI), then your snippet text and prompt will be sent to that external provider for processing. No data is sent anywhere else, and the plugin does not log or store any AI responses outside of your WordPress database.
 
+== Development and Contribution ==
+Codesnip ai free versions codes are Open Source and available in [GitHub](https://github.com/jishat/codesnip-ai).
 
 == Screenshots ==
 1. Snippet management screen.
