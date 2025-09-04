@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: CodeSnip AI
- * Plugin URI: https://github.com/jishat/codesnip-ai
+ * Plugin URI: https://wordpress.org/plugins/codesnip-ai
  * Description: Save and manage HTML snippets in WordPress. Optional AI assistant for snippet optimization with OpenAI.
  * Version: 1.0.0
  * Author: Mohammad Azizur Rahman Jishat
@@ -12,7 +12,7 @@
  * Tested up to: 6.8
  * Requires PHP: 7.4
  * License: GPLv2 or later
- * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  *
  * @package CodeSnip_AI
  * @since 1.0.0
