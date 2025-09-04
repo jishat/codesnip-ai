@@ -1,58 +1,43 @@
 # CodeSnip AI - WordPress Plugin
 
-A powerful WordPress plugin that integrates OpenAI's AI capabilities to help developers generate, manage, and organize code snippets.
+## Description
 
-## Features
+CodeSnip AI helps developers and site owners save and manage reusable **HTML code snippets** directly from the WordPress admin. This makes it easy to store, organize, and reuse snippets without editing theme files or risking unsafe code.
 
-- 🤖 **AI-Powered Code Generation**: Generate code snippets using OpenAI's advanced language models
-- 📝 **Snippet Management**: Create, edit, and organize code snippets by type (HTML, CSS, JavaScript, PHP)
-- 🔧 **Flexible Configuration**: Customize OpenAI settings including API key, model selection, and token limits
-- 🎨 **Modern React Interface**: Beautiful, responsive UI built with React and modern web technologies
-- 🔒 **Security First**: Built following WordPress security best practices with proper nonce verification and capability checks
-- 📱 **Responsive Design**: Works seamlessly on desktop and mobile devices
+🚀 **Initial Release (v1.0.0)**  
+- Supports **HTML snippets only**.  
+- CSS and JavaScript snippet support is planned for upcoming versions.  
 
-## OpenAI Configuration
+### Key Features
 
-The plugin requires an OpenAI API key to function. You can configure the following settings:
+- **Save and manage HTML snippets securely** - Store your code snippets safely in WordPress
+- **Sanitization and validation** - All snippet input is properly sanitized and validated
+- **Optional AI Assistant** - For snippet optimization or refactoring using your own API key
+- **External AI provider support** - Supports OpenAI using your own API key
+- **No API key required** - Core snippet management works without any API key
+- **WordPress security best practices** - Proper escaping, sanitization, and capability checks
+- **Modern React interface** - Beautiful, responsive UI built with React
+- **Responsive design** - Works seamlessly on desktop and mobile devices
 
-### Required Settings
-- **API Key**: Your OpenAI API key (starts with `sk-`)
-- **AI Model**: Choose from available OpenAI models:
-  - GPT-4.1 Nano (recommended - fast and efficient)
-  - GPT-4.1 Mini
-  - GPT-4.1
-  - GPT-4o
-  - GPT-4o Mini
-  - o1 (most capable)
-  - o1 Mini
-  - o3
-  - o3 Mini
-  - GPT-4
-  - GPT-4 Turbo
-  - GPT-3.5 Turbo
-- **Max Tokens**: Maximum response length (1-4000 tokens)
+### AI Assistant (Optional)
 
-### How to Configure
+- If you want to use AI to optimize your snippets, you can enter your own API key (OpenAI) in the plugin settings
+- No key is provided by this plugin. You must bring your own
+- If you do not configure a key, AI features remain disabled  
+- All AI input/output is sanitized before being stored or displayed
 
-#### Option 1: React Interface (Recommended)
-1. Navigate to **CodeSnip AI > Settings** in your WordPress admin
-2. Enter your OpenAI API key
-3. Select your preferred AI model
-4. Set the maximum tokens limit
-5. Click "Save Settings"
-6. Test the connection using "Test API Connection"
-
-#### Option 2: Traditional WordPress Settings
-1. Go to **Settings > CodeSnip AI** in your WordPress admin
-2. Configure the same options as above
-3. Click "Save Changes"
+This ensures that the plugin works out of the box for **manual snippet management**, and AI features are **100% optional**.
 
 ## Installation
 
-1. Upload the plugin files to `/wp-content/plugins/codesnip-ai/`
-2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Configure your OpenAI API key in the settings
-4. Start creating and managing code snippets!
+1. Upload the plugin files to the `/wp-content/plugins/codesnip-ai` directory, or install via the WordPress Plugins screen
+2. Activate the plugin through the **Plugins** screen in WordPress
+3. Go to **CodeSnip AI** in the admin menu to start saving snippets
+4. (Optional) If you want to enable AI assistant features:
+   - Go to **Settings → CodeSnip AI**
+   - Enter your own API key (OpenAI)
+   - Save settings  
+   Without this, AI features remain disabled
 
 ## Development Setup
 
@@ -80,37 +65,6 @@ npm run build
 - **API Key Protection**: API keys are stored securely using WordPress options API
 - **XSS Prevention**: Output is properly escaped to prevent cross-site scripting attacks
 
-## Database Schema
-
-The plugin creates a custom table `{prefix}codesnip_snippets` with the following structure:
-
-```sql
-CREATE TABLE {prefix}codesnip_snippets (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  slug VARCHAR(255) NOT NULL,
-  snippet LONGTEXT NOT NULL,
-  type VARCHAR(20) DEFAULT 'html' NOT NULL,
-  status TINYINT(1) DEFAULT 1 NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-## API Endpoints
-
-The plugin provides several AJAX endpoints for managing snippets and settings:
-
-- `codesnip_ai_assist` - Generate code using AI
-- `codesnip_ai_save` - Save new snippets
-- `codesnip_ai_get_all` - Retrieve all snippets
-- `codesnip_ai_get_by_type` - Get snippets by type
-- `codesnip_ai_get_by_id` - Get specific snippet
-- `codesnip_ai_update` - Update existing snippets
-- `codesnip_ai_delete` - Delete snippets
-- `codesnip_ai_toggle_status` - Toggle snippet status
-- `codesnip_ai_save_settings` - Save OpenAI configuration
-- `codesnip_ai_get_settings` - Retrieve OpenAI configuration
-
 ## Shortcode Usage
 
 Display snippets anywhere on your site using the shortcode:
@@ -121,14 +75,25 @@ Display snippets anywhere on your site using the shortcode:
 
 Replace `1` with the actual snippet ID you want to display.
 
-## Hooks and Filters
+## Frequently Asked Questions
 
-The plugin follows WordPress coding standards and provides various hooks for customization:
+### Do I need an API key to use this plugin?
+No. The plugin works fully for saving and managing HTML snippets without any API key. Only if you want to use the AI assistant features do you need to provide your own key.
 
-- `codesnip_ai_before_save` - Action before saving snippets
-- `codesnip_ai_after_save` - Action after saving snippets
-- `codesnip_ai_before_delete` - Action before deleting snippets
-- `codesnip_ai_after_delete` - Action after deleting snippets
+### Does the plugin send my code to external services?
+Only if you use the AI Assistant. In that case, your snippet and prompt are sent to your chosen AI provider (OpenAI). The plugin itself does not log or share your data.
+
+### Can I save CSS, JS, or PHP snippets?
+At launch, the plugin supports **HTML snippets only**. Support for **CSS and JavaScript** snippets is planned in future releases.
+
+### Why do I need to provide my own API key?
+For security and transparency. The plugin does not include or share any API keys. If you choose to enable AI features, you must provide your own key from your AI provider.
+
+## Privacy Policy
+
+This plugin does not collect or share any personal data by default. All snippets are stored locally in your WordPress database.
+
+If you choose to enable the optional AI Assistant feature and configure your own API key (OpenAI), then your snippet text and prompt will be sent to that external provider for processing. No data is sent anywhere else, and the plugin does not log or store any AI responses outside of your WordPress database.
 
 ## Troubleshooting
 
@@ -157,7 +122,9 @@ define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
 ```
 
-## Contributing
+## Development and Contribution
+
+CodeSnip AI free version code is Open Source and available on [GitHub](https://github.com/jishat/codesnip-ai).
 
 1. Fork the repository
 2. Create a feature branch
@@ -165,15 +132,23 @@ define('WP_DEBUG_LOG', true);
 4. Test thoroughly
 5. Submit a pull request
 
+## Screenshots
+
+1. Snippet management screen
+2. Settings page with API key input
+3. AI optimization in action (optional)
+
 ## Changelog
 
-### Version 1.0
+### Version 1.0.0
 - Initial release
-- AI-powered code generation
-- Snippet management system
-- OpenAI configuration settings
-- Modern React interface
-- WordPress security best practices
+- HTML snippet management only
+- AI assistant (optional, requires user-provided API key)
+
+## Upgrade Notice
+
+### Version 1.0.0
+First release with HTML snippet management and optional AI assistant.
 
 ## License
 
@@ -188,3 +163,5 @@ For support, feature requests, or bug reports, please create an issue in the rep
 - Built with React and modern web technologies
 - Powered by OpenAI's GPT models
 - Follows WordPress coding standards and best practices
+- Author: Mohammad Azizur Rahman Jishat
+- GitHub: [https://github.com/jishat](https://github.com/jishat)
