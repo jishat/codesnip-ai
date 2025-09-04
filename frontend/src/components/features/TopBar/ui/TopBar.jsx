@@ -44,7 +44,7 @@ export default function TopBar(){
         ))}
       </div>
       <div className="flex items-center gap-x-2">
-        <a href="#" className="flex items-center text-green-950! px-4 py-2 text-md font-bold bg-gray-200 leading-6 capitalize duration-100 transform rounded-full 
+        <a href="https://wordpress.org/support/plugin/codesnip-ai/reviews/#new-post" className="flex items-center text-green-950! px-4 py-2 text-md font-bold bg-gray-200 leading-6 capitalize duration-100 transform rounded-full 
           cursor-pointer focus:ring-4 focus:ring-green-500 focus:ring-opacity-50 focus:outline-none o 
           hover:shadow-sm">
           <Star className="w-5 h-5 mr-2" />
